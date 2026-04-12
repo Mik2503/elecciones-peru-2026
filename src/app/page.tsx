@@ -225,10 +225,17 @@ export default function ElectoralDashboard() {
         {/* Left Column: Progress & Cards */}
         <div className="xl:col-span-4 space-y-6">
           <div className="glass-card p-8 flex flex-col items-center justify-center gap-4">
-            <CircularProgress value={current.percentCounted} label="Actas Contabilizadas" />
+            <CircularProgress 
+              value={current.percentCounted > 0 ? current.percentCounted : (current as any).percentInstalled || 0} 
+              label={current.percentCounted > 0 ? "Actas Contabilizadas" : "Mesas Instaladas (OFICIAL)"} 
+            />
             <div className="text-center mt-2">
-              <p className="text-zinc-500 text-xs uppercase tracking-[0.2em] font-bold italic">Muestra Procesada</p>
-              <p className="text-zinc-300 text-sm">{current.totals.total.toLocaleString()} votos totales</p>
+              <p className="text-zinc-500 text-xs uppercase tracking-[0.2em] font-bold italic">
+                {(current as any).status || "Estado de Jornada"}
+              </p>
+              <p className="text-zinc-300 text-sm mt-1">
+                {(current as any).message || `${current.totals.total.toLocaleString()} votos totales`}
+              </p>
             </div>
           </div>
 

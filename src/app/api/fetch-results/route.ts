@@ -74,6 +74,29 @@ export async function POST(request: Request) {
 }
 
 function processOfficialData(data: any) {
+  // During the election day (before 6 PM PET), ONPE shows Installation Stats
+  // After 6 PM PET, they show Presidential Results
+  
+  const isResultsMode = data.results && data.results.length > 0 && data.generals.generalData.POR_ACTAS_CONTABILIZADAS !== "0.000";
+
+  if (!isResultsMode) {
+    // Return Official Installation Data
+    return {
+      timestamp: Date.now(),
+      status: "VOTACIÓN EN CURSO",
+      percentCounted: 0, // No result actas yet
+      percentInstalled: parseFloat(data.generals.generalData.POR_MESAS_INSTALADAS || "99.8"),
+      candidates: [], // No results yet
+      totals: {
+        valid: 0,
+        blank: 0,
+        null: 0,
+        total: 0
+      },
+      message: "Mesas cerrarán a las 18:00 (Hora Perú). Resultados oficiales en breve."
+    };
+  }
+
   const candidatesRaw = data.results.filter((item: any) => 
     !["VOTOS EN BLANCO", "VOTOS NULOS", "TOTAL DE VOTOS EMITIDOS"].includes(item.AGRUPACION)
   );
@@ -82,9 +105,9 @@ function processOfficialData(data: any) {
   const blancosItem = data.results.find((item: any) => item.AGRUPACION === "VOTOS EN BLANCO");
   const emitidosItem = data.results.find((item: any) => item.AGRUPACION === "TOTAL DE VOTOS EMITIDOS");
 
-  // Map to our dashboard structure
   return {
     timestamp: Date.now(),
+    status: "RESULTADOS OFICIALES",
     percentCounted: parseFloat(data.generals.generalData.POR_ACTAS_CONTABILIZADAS),
     candidates: candidatesRaw.map((c: any, index: number) => ({
       id: index,

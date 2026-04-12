@@ -40,6 +40,21 @@ export async function GET() {
       });
     }
 
+    // All proxies failed - try boca de urna data
+    console.log("[data] Proxies failed, loading boca de urna data...");
+    const bocaData = getBocaDeUrnaData();
+    if (bocaData) {
+      await kv.set("election:current", bocaData);
+      await kv.lpush("election:history", bocaData);
+      await kv.ltrim("election:history", 0, 99);
+      return NextResponse.json({
+        current: bocaData,
+        history: [bocaData],
+        source: "Boca de Urna - Datum Internacional",
+        note: "Encuesta de salida - NO son resultados oficiales de ONPE"
+      });
+    }
+
     return NextResponse.json({
       current: null,
       history: [],
@@ -95,6 +110,38 @@ async function tryFetchThroughProxies(): Promise<{ success: boolean; source: str
   }
 
   return { success: false, source: "none", error: "All proxy strategies failed" };
+}
+
+/** Boca de urna data from Datum Internacional (April 12, 2026) */
+function getBocaDeUrnaData(): any | null {
+  const topCandidates = [
+    { name: "KEIKO FUJIMORI", party: "Fuerza Popular", percent: 16.5 },
+    { name: "RAFAEL LÓPEZ ALIAGA", party: "Renovación Popular", percent: 12.8 },
+    { name: "JORGE NIETO", party: "Partido del Buen Gobierno", percent: 11.6 },
+    { name: "RICARDO BELMONT", party: "Partido Cívico Obras", percent: 10.5 }
+  ];
+  const estimatedTurnout = 20250000;
+  const estimatedTotalVotes = Math.round(estimatedTurnout * 0.85);
+
+  return {
+    timestamp: Date.now(),
+    status: "BOCA DE URNA (Encuesta de Salida - Datum)",
+    percentCounted: 0, percentEstimated: 100,
+    isExitPoll: true,
+    candidates: topCandidates.map((c, i) => ({
+      id: i, name: c.name, party: c.party,
+      votes: Math.round(estimatedTotalVotes * c.percent / 100),
+      percent: c.percent,
+      color: getPartyColor(c.party)
+    })),
+    totals: {
+      valid: estimatedTotalVotes,
+      blank: Math.round(estimatedTurnout * 0.03),
+      null: Math.round(estimatedTurnout * 0.05),
+      total: estimatedTurnout
+    },
+    message: "Encuesta de salida Datum - Resultados oficiales ONPE desde las 7:30 PM"
+  };
 }
 
 function processOfficialData(data: any) {

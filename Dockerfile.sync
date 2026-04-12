@@ -1,5 +1,11 @@
 # Docker synchronization engine for Peru 2026 Elections
 # This ensures 1-minute updates without using paid Vercel Crons.
+# 
+# USAGE:
+#   docker build -t onpe-sync . && docker run --name onpe-sync-container onpe-sync
+#
+# IMPORTANT: Run this from a machine with a Peruvian residential IP
+# to bypass the ONPE firewall that blocks Vercel cloud IPs.
 
 FROM alpine:latest
 

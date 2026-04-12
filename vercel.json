@@ -1,8 +1,9 @@
 {
+    "name": "elecciones-peru-2026",
     "crons": [
-          {
-                  "path": "/api/fetch-results",
-                  "schedule": "0 0 * * *"
-          }
+        {
+            "path": "/api/fetch-results",
+            "schedule": "0 0 * * *"
+        }
     ]
 }

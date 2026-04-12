@@ -133,7 +133,7 @@ export default function ElectoralDashboard() {
         // If no data in KV, tell the user we are waiting for official sync
         setError("Esperando datos oficiales de ONPE...");
       }
-    } catch (err) {
+    } catch {
       setError("Error de conexión con el centro de datos.");
     } finally {
       setLoading(false);
@@ -192,6 +192,29 @@ export default function ElectoralDashboard() {
     );
   }
 
+  if (error && !data.current) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0c] flex items-center justify-center">
+        <div className="text-center max-w-lg px-6">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-white mb-2">Esperando Datos Oficiales</h2>
+          <p className="text-zinc-400 mb-4">{error}</p>
+          <div className="text-zinc-500 text-sm space-y-2 text-left bg-zinc-900/50 p-4 rounded-lg">
+            <p><strong className="text-zinc-300">Situación:</strong> La ONPE bloquea peticiones desde servidores cloud (Vercel). Se requiere ejecutar la sincronización desde una IP residencial de Perú.</p>
+            <p><strong className="text-zinc-300">Candidatos 2026:</strong> 35 candidatos presidenciales oficiales incluyendo Keiko Fujimori, Rafael López Aliaga, Carlos Álvarez, Alfonso López Chau, César Acuña, George Forsyth, Vladimir Cerrón, entre otros.</p>
+            <p><strong className="text-zinc-300">Solución:</strong> Ejecutar Docker Sync desde una máquina con IP peruana para obtener datos reales de la ONPE.</p>
+          </div>
+          <button
+            onClick={() => { setLoading(true); setError(null); fetchData(); }}
+            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            Reintentar Conexión
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const current = data.current!;
 
   return (
@@ -225,9 +248,9 @@ export default function ElectoralDashboard() {
         {/* Left Column: Progress & Cards */}
         <div className="xl:col-span-4 space-y-6">
           <div className="glass-card p-8 flex flex-col items-center justify-center gap-4">
-            <CircularProgress 
-              value={current.percentCounted > 0 ? current.percentCounted : (current as any).percentInstalled || 0} 
-              label={current.percentCounted > 0 ? "Actas Contabilizadas" : "Mesas Instaladas (OFICIAL)"} 
+            <CircularProgress
+              value={current.percentCounted > 0 ? current.percentCounted : (current as any).percentInstalled || 0}
+              label={current.percentCounted > 0 ? "Actas Contabilizadas" : "Mesas Instaladas (OFICIAL)"}
             />
             <div className="text-center mt-2">
               <p className="text-zinc-500 text-xs uppercase tracking-[0.2em] font-bold italic">
@@ -240,23 +263,23 @@ export default function ElectoralDashboard() {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            <StatCard 
-              title="Votos Emitidos" 
-              value={current.totals.valid.toLocaleString()} 
-              icon={Users} 
-              color="bg-blue-500" 
+            <StatCard
+              title="Votos Emitidos"
+              value={current.totals.valid.toLocaleString()}
+              icon={Users}
+              color="bg-blue-500"
             />
-            <StatCard 
-              title="Votos Blancos" 
-              value={current.totals.blank.toLocaleString()} 
-              icon={FileText} 
-              color="bg-zinc-500" 
+            <StatCard
+              title="Votos Blancos"
+              value={current.totals.blank.toLocaleString()}
+              icon={FileText}
+              color="bg-zinc-500"
             />
-            <StatCard 
-              title="Votos Nulos" 
-              value={current.totals.null.toLocaleString()} 
-              icon={AlertCircle} 
-              color="bg-red-500" 
+            <StatCard
+              title="Votos Nulos"
+              value={current.totals.null.toLocaleString()}
+              icon={AlertCircle}
+              color="bg-red-500"
             />
           </div>
         </div>
@@ -276,17 +299,17 @@ export default function ElectoralDashboard() {
                 </div>
               )}
             </div>
-            
+
             <ResponsiveContainer width="100%" height="85%">
               <BarChart data={barData} layout="vertical" margin={{ left: 40, right: 40, top: 10 }}>
                 <XAxis type="number" hide />
-                <YAxis 
-                  dataKey="name" 
-                  type="category" 
+                <YAxis
+                  dataKey="name"
+                  type="category"
                   tick={{ fill: '#71717a', fontSize: 12, fontWeight: 'bold' }}
                   width={150}
                 />
-                <Tooltip 
+                <Tooltip
                   cursor={{ fill: '#1f1f23' }}
                   contentStyle={{ backgroundColor: '#121214', border: '1px solid #1f1f23', borderRadius: '8px' }}
                 />
@@ -295,21 +318,21 @@ export default function ElectoralDashboard() {
                     <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={index === 0 ? 1 : 0.6} />
                   ))}
                 </Bar>
-                
+
                 {/* Visual Gap Representation */}
                 {barData.length > 1 && (
-                  <ReferenceLine 
-                    y={barData[0].name} 
+                  <ReferenceLine
+                    y={barData[0].name}
                     stroke="transparent"
                   >
-                    <Label 
-                      position="top" 
+                    <Label
+                      position="top"
                       content={() => (
                         <foreignObject x="60%" y="25%" width="120" height="60">
-                           <div className="border-l-2 border-red-500 h-24 flex flex-col justify-center pl-3 animate-pulse">
-                              <p className="text-[10px] text-red-500 font-bold">DIFERENCIA</p>
-                              <p className="text-xs text-white font-black">{duelLine?.diff.toLocaleString()} VOTOS</p>
-                           </div>
+                          <div className="border-l-2 border-red-500 h-24 flex flex-col justify-center pl-3 animate-pulse">
+                            <p className="text-[10px] text-red-500 font-bold">DIFERENCIA</p>
+                            <p className="text-xs text-white font-black">{duelLine?.diff.toLocaleString()} VOTOS</p>
+                          </div>
                         </foreignObject>
                       )}
                     />
@@ -329,16 +352,16 @@ export default function ElectoralDashboard() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#1f1f23" vertical={false} />
                 <XAxis dataKey="time" tick={{ fill: '#71717a', fontSize: 10 }} axisLine={false} />
                 <YAxis hide />
-                <Tooltip 
-                   contentStyle={{ backgroundColor: '#121214', border: '1px solid #1f1f23', borderRadius: '8px' }}
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#121214', border: '1px solid #1f1f23', borderRadius: '8px' }}
                 />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: 10, paddingTop: 10 }} />
                 {data.current?.candidates.slice(0, 3).map((candidate, i) => (
-                  <Line 
+                  <Line
                     key={candidate.id}
-                    type="monotone" 
-                    dataKey={candidate.name} 
-                    stroke={candidate.color} 
+                    type="monotone"
+                    dataKey={candidate.name}
+                    stroke={candidate.color}
                     strokeWidth={i === 0 ? 3 : 1.5}
                     dot={false}
                     activeDot={{ r: 4, strokeWidth: 0 }}

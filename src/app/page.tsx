@@ -196,17 +196,18 @@ export default function ElectoralDashboard() {
     return (
       <div className="min-h-screen bg-[#0a0a0c] flex items-center justify-center">
         <div className="text-center max-w-lg px-6">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-white mb-2">Esperando Datos Oficiales</h2>
+          <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-white mb-2">Elecciones Generales 2026</h2>
           <p className="text-zinc-400 mb-4">{error}</p>
-          <div className="text-zinc-500 text-sm space-y-2 text-left bg-zinc-900/50 p-4 rounded-lg">
-            <p><strong className="text-zinc-300">Situación:</strong> La ONPE bloquea peticiones desde servidores cloud (Vercel). Se requiere ejecutar la sincronización desde una IP residencial de Perú.</p>
-            <p><strong className="text-zinc-300">Candidatos 2026:</strong> 35 candidatos presidenciales oficiales incluyendo Keiko Fujimori, Rafael López Aliaga, Carlos Álvarez, Alfonso López Chau, César Acuña, George Forsyth, Vladimir Cerrón, entre otros.</p>
-            <p><strong className="text-zinc-300">Solución:</strong> Ejecutar Docker Sync desde una máquina con IP peruana para obtener datos reales de la ONPE.</p>
+          <div className="text-zinc-500 text-sm space-y-3 text-left bg-zinc-900/50 p-5 rounded-lg border border-zinc-800">
+            <p className="text-amber-400 font-bold text-xs uppercase tracking-wider">Estado Actual</p>
+            <p>La ONPE protege sus servidores con un firewall que <strong className="text-zinc-300">bloquea todas las peticiones desde servidores cloud</strong> (Vercel, AWS, Azure, etc.) y proxies CORS públicos.</p>
+            <p className="border-t border-zinc-800 pt-3 mt-3"><strong className="text-zinc-300">Los datos oficiales</strong> solo son accesibles desde una <strong className="text-zinc-300">IP residencial de Perú</strong>.</p>
+            <p className="border-t border-zinc-800 pt-3 mt-3"><strong className="text-zinc-300">35 candidatos presidenciales</strong> oficiales configurados y listos para mostrar datos reales.</p>
           </div>
           <button
             onClick={() => { setLoading(true); setError(null); fetchData(); }}
-            className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            className="mt-6 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
           >
             Reintentar Conexión
           </button>

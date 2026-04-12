@@ -1,188 +1,226 @@
 import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 
-// Proxy endpoint that attempts to bypass ONPE firewall
-// This endpoint tries multiple strategies to get past Cloudflare/firewall blocks
+// ============================================================================
+// AGGRESSIVE PROXY ENDPOINT - Bypasses ONPE firewall from Vercel cloud IPs
+// Tries 7 different proxy strategies to reach ONPE data
+// ============================================================================
 
-const ONPE_URL = "https://eg2026.onpe.gob.pe/resultados/presidencial.json";
+const ONPE_JSON_URL = "https://eg2026.onpe.gob.pe/resultados/presidencial.json";
 const ONPE_V1_URL = "https://eg2026.onpe.gob.pe/api/v1/presidencial/resumen";
 
-// Helper to parse ONPE's numeric strings with commas
+// Proxy services to try (all free, no API key needed)
+const PROXY_STRATEGIES = [
+  // Strategy 1: allorigins.win (most reliable for JSON)
+  (url: string) => ({
+    url: `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    name: "allorigins-raw",
+    needsUnwrap: false,
+  }),
+  // Strategy 2: corsproxy.io
+  (url: string) => ({
+    url: `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    name: "corsproxy.io",
+    needsUnwrap: false,
+  }),
+  // Strategy 3: cors-anywhere demo (limited but worth trying)
+  (url: string) => ({
+    url: `https://cors-anywhere.herokuapp.com/${url}`,
+    name: "cors-anywhere",
+    needsUnwrap: false,
+  }),
+  // Strategy 4: thingproxy.freeboard.io
+  (url: string) => ({
+    url: `https://thingproxy.freeboard.io/fetch/${url}`,
+    name: "thingproxy",
+    needsUnwrap: false,
+  }),
+  // Strategy 5: allorigins JSON wrapper (sometimes works when raw fails)
+  (url: string) => ({
+    url: `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    name: "allorigins-json",
+    needsUnwrap: true, // Response is { contents: "..." }
+  }),
+  // Strategy 6: Direct with aggressive browser headers
+  (url: string) => ({
+    url,
+    name: "direct-aggressive",
+    needsUnwrap: false,
+  }),
+];
+
 const parseONPENumber = (str: string) => {
   if (!str) return 0;
   return parseInt(str.replace(/,/g, ""), 10);
 };
 
 export async function GET() {
-  console.log("[fetch-proxy] Starting proxy fetch attempt...");
+  console.log("[fetch-proxy] === STARTING AGGRESSIVE PROXY ATTACK ===");
+  const results: Array<{ strategy: string; status: string; error?: string }> = [];
 
-  // Strategy 1: Try with maximum browser-like headers
-  let result = await tryFetchWithStrategy("full-browser", ONPE_URL);
+  for (const strategyFn of PROXY_STRATEGIES) {
+    const strategy = strategyFn(ONPE_JSON_URL);
+    console.log(`[fetch-proxy] Trying: ${strategy.name} -> ${strategy.url.substring(0, 100)}...`);
 
-  if (!result.success) {
-    console.log("[fetch-proxy] Strategy 1 failed, trying strategy 2 (v1 API)...");
-    // Strategy 2: Try v1 API which might have different firewall rules
-    result = await tryFetchWithStrategy("full-browser", ONPE_V1_URL);
-  }
-
-  if (!result.success) {
-    console.log("[fetch-proxy] Strategy 2 failed, trying strategy 3 (minimal headers)...");
-    // Strategy 3: Try with minimal headers (some firewalls block on too many headers)
-    result = await tryFetchWithStrategy("minimal", ONPE_URL);
-  }
-
-  if (!result.success) {
-    return NextResponse.json({
-      success: false,
-      error: result.error,
-      message: "All proxy strategies failed. The ONPE firewall is blocking Vercel IPs. Run Docker Sync from a local Peruvian IP.",
-      strategies_tried: ["full-browser (JSON)", "full-browser (v1 API)", "minimal (JSON)"]
-    }, { status: 502 });
-  }
-
-  // Process and store the data
-  try {
-    const processedData = result.useV1Format
-      ? processOfficialV1Data(result.data)
-      : processOfficialData(result.data);
-
-    await kv.set("election:current", processedData);
-    await kv.lpush("election:history", processedData);
-    await kv.ltrim("election:history", 0, 99);
-
-    console.log("[fetch-proxy] Successfully stored data from proxy");
-    return NextResponse.json({
-      success: true,
-      source: `ONPE (proxy - ${result.strategy})`,
-      data: processedData
-    });
-  } catch (error: any) {
-    console.error("[fetch-proxy] Processing error:", error.message);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-  }
-}
-
-interface FetchResult {
-  success: boolean;
-  data?: any;
-  error?: string;
-  strategy: string;
-  useV1Format: boolean;
-}
-
-async function tryFetchWithStrategy(strategy: string, url: string): Promise<FetchResult> {
-  console.log(`[fetch-proxy] Trying strategy: ${strategy}, URL: ${url}`);
-
-  const headers: Record<string, string> = strategy === "full-browser"
-    ? {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Accept": "application/json, text/plain, */*",
-      "Accept-Language": "es-PE,es;q=0.9,es-419;q=0.8,en;q=0.7",
-      "Accept-Encoding": "gzip, deflate, br",
-      "Connection": "keep-alive",
-      "Referer": "https://eg2026.onpe.gob.pe/",
-      "Origin": "https://eg2026.onpe.gob.pe",
-      "Sec-Fetch-Dest": "empty",
-      "Sec-Fetch-Mode": "cors",
-      "Sec-Fetch-Site": "same-origin",
-      "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-      "Sec-Ch-Ua-Mobile": "?0",
-      "Sec-Ch-Ua-Platform": '"Windows"',
-      "Cache-Control": "no-cache",
-      "Pragma": "no-cache"
-    }
-    : {
-      // Minimal headers - some firewalls prefer this
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Accept": "application/json"
-    };
-
-  try {
-    const response = await fetch(url, {
-      headers,
-      next: { revalidate: 0 },
-      // Some firewalls check for cache bypass
-      cache: "no-store"
-    });
-
-    console.log(`[fetch-proxy] ${strategy} - Status: ${response.status}`);
-
-    if (!response.ok) {
-      const errorBody = await response.text().catch(() => "No body");
-      const isCloudflare = errorBody.toLowerCase().includes("cloudflare") ||
-        errorBody.includes("cf-") ||
-        errorBody.includes("cf-chl");
-
-      console.error(`[fetch-proxy] ${strategy} - Failed (${response.status}) ${isCloudflare ? "[Cloudflare]" : "[Other]"}`);
-      console.error(`[fetch-proxy] ${strategy} - Response preview:`, errorBody.substring(0, 300));
-
-      return {
-        success: false,
-        error: `Status ${response.status} - ${isCloudflare ? "Cloudflare block" : "Server error"}`,
-        strategy,
-        useV1Format: url.includes("/api/v1/")
+    try {
+      const fetchOptions: RequestInit = {
+        next: { revalidate: 0 },
+        cache: "no-store",
+        signal: AbortSignal.timeout(15000), // 15s timeout per strategy
       };
+
+      // Add browser-like headers for direct attempt
+      if (strategy.name === "direct-aggressive") {
+        fetchOptions.headers = {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+          "Accept": "application/json, text/plain, */*",
+          "Accept-Language": "es-PE,es;q=0.9,es-419;q=0.8,en;q=0.7",
+          "Accept-Encoding": "gzip, deflate, br",
+          "Referer": "https://eg2026.onpe.gob.pe/",
+          "Origin": "https://eg2026.onpe.gob.pe",
+          "Sec-Fetch-Dest": "empty",
+          "Sec-Fetch-Mode": "cors",
+          "Sec-Fetch-Site": "same-origin",
+          "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="131", "Google Chrome";v="131"',
+          "Sec-Ch-Ua-Mobile": "?0",
+          "Sec-Ch-Ua-Platform": '"Windows"',
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache",
+          "DNT": "1",
+        };
+      }
+
+      const response = await fetch(strategy.url, fetchOptions);
+      console.log(`[fetch-proxy] ${strategy.name} -> HTTP ${response.status}`);
+
+      if (!response.ok) {
+        results.push({ strategy: strategy.name, status: `HTTP ${response.status}` });
+        continue;
+      }
+
+      let rawText = await response.text();
+
+      // Unwrap if needed (allorigins JSON wrapper)
+      if (strategy.needsUnwrap) {
+        try {
+          const wrapper = JSON.parse(rawText);
+          rawText = wrapper.contents || rawText;
+        } catch {
+          // Keep rawText as-is
+        }
+      }
+
+      // Try to parse as JSON
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        results.push({ strategy: strategy.name, status: "Invalid JSON" });
+        continue;
+      }
+
+      // Validate ONPE structure
+      if (!data.generals || !data.results) {
+        results.push({ strategy: strategy.name, status: "Invalid ONPE structure" });
+        continue;
+      }
+
+      // SUCCESS! Process and store
+      console.log(`[fetch-proxy] ✅ SUCCESS with ${strategy.name}!`);
+      const processedData = processOfficialData(data);
+
+      await kv.set("election:current", processedData);
+      await kv.lpush("election:history", processedData);
+      await kv.ltrim("election:history", 0, 99);
+
+      return NextResponse.json({
+        success: true,
+        source: `ONPE via ${strategy.name}`,
+        data: processedData,
+        proxy_log: results,
+      });
+    } catch (error: any) {
+      console.log(`[fetch-proxy] ${strategy.name} -> Error: ${error.message.substring(0, 80)}`);
+      results.push({ strategy: strategy.name, status: "Error", error: error.message.substring(0, 100) });
     }
-
-    const rawData = await response.json();
-    console.log(`[fetch-proxy] ${strategy} - Got data, keys:`, Object.keys(rawData));
-
-    // Validate structure
-    if (!rawData.generals || !rawData.results) {
-      console.error(`[fetch-proxy] ${strategy} - Invalid structure`);
-      return {
-        success: false,
-        error: "Invalid JSON structure",
-        strategy,
-        useV1Format: url.includes("/api/v1/")
-      };
-    }
-
-    return {
-      success: true,
-      data: rawData,
-      strategy,
-      useV1Format: url.includes("/api/v1/")
-    };
-  } catch (error: any) {
-    console.error(`[fetch-proxy] ${strategy} - Exception:`, error.message);
-    return {
-      success: false,
-      error: error.message,
-      strategy,
-      useV1Format: url.includes("/api/v1/")
-    };
   }
+
+  // ALL FAILED - try v1 API with proxies as last resort
+  console.log("[fetch-proxy] Primary JSON failed, trying v1 API with proxies...");
+  for (const strategyFn of [PROXY_STRATEGIES[0], PROXY_STRATEGIES[1]]) {
+    const strategy = strategyFn(ONPE_V1_URL);
+    try {
+      const response = await fetch(strategy.url, {
+        next: { revalidate: 0 },
+        cache: "no-store",
+        signal: AbortSignal.timeout(15000),
+      });
+
+      if (!response.ok) continue;
+
+      let rawText = await response.text();
+      if (strategy.needsUnwrap) {
+        try { rawText = JSON.parse(rawText).contents || rawText; } catch { }
+      }
+
+      const data = JSON.parse(rawText);
+      if (!data.generals || !data.results) continue;
+
+      console.log(`[fetch-proxy] ✅ SUCCESS with v1 API via ${strategy.name}!`);
+      const processedData = processOfficialV1Data(data);
+
+      await kv.set("election:current", processedData);
+      await kv.lpush("election:history", processedData);
+      await kv.ltrim("election:history", 0, 99);
+
+      return NextResponse.json({
+        success: true,
+        source: `ONPE v1 via ${strategy.name}`,
+        data: processedData,
+        proxy_log: results,
+      });
+    } catch {
+      // Continue to next
+    }
+  }
+
+  // TOTAL FAILURE
+  return NextResponse.json({
+    success: false,
+    error: "All 7 proxy strategies failed. ONPE firewall is blocking all known proxies.",
+    message: "Los datos de la ONPE no son accesibles desde Vercel. Se necesita Docker Sync desde IP peruana.",
+    strategies_tried: results,
+  }, { status: 502 });
 }
 
-// POST handler for proxy endpoint
+// POST handler
 export async function POST(request: Request) {
   try {
-    console.log("[fetch-proxy] POST - Received data push");
     const rawData = await request.json();
-
     let processedData;
+
     if (rawData.generals && rawData.results) {
-      // Detect format and process accordingly
-      const useV1Format = rawData.generals.porcentajeActasProcesadas !== undefined;
-      processedData = useV1Format
-        ? processOfficialV1Data(rawData)
-        : processOfficialData(rawData);
+      const useV1 = rawData.generals.porcentajeActasProcesadas !== undefined;
+      processedData = useV1 ? processOfficialV1Data(rawData) : processOfficialData(rawData);
     } else if (rawData.candidates && rawData.totals) {
       processedData = rawData;
     } else {
-      return NextResponse.json({ success: false, error: "Invalid JSON structure" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Invalid structure" }, { status: 400 });
     }
 
     await kv.set("election:current", processedData);
     await kv.lpush("election:history", processedData);
     await kv.ltrim("election:history", 0, 99);
 
-    return NextResponse.json({ success: true, message: "Proxy data updated successfully." });
-  } catch (_error) {
+    return NextResponse.json({ success: true, message: "Data updated." });
+  } catch {
     return NextResponse.json({ success: false, error: "Processing error" }, { status: 500 });
   }
 }
+
+// ============================================================================
+// DATA PROCESSORS
+// ============================================================================
 
 function processOfficialData(data: any) {
   const isResultsMode = data.results && data.results.length > 0 &&

@@ -3,7 +3,7 @@
 # Fetches directly from ONPE and pushes to Vercel KV via API
 
 ONPE_URL="https://eg2026.onpe.gob.pe/resultados/presidencial.json"
-API_ENDPOINT="https://elecciones-peru-2026-peach.vercel.app/api/fetch-results"
+API_ENDPOINT="https://elecciones-peru-2026-peach.vercel.app/api/fetch-onpe"
 
 echo "Iniciando Sincronizador OFICIAL Perú 2026..."
 

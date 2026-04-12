@@ -130,13 +130,11 @@ export default function ElectoralDashboard() {
         setData(json);
         setError(null);
       } else {
-        // Fallback to initial simulation if KV empty
-        const fetchRes = await fetch("/api/fetch-results");
-        const fetchJson = await fetchRes.json();
-        setData({ current: fetchJson.data, history: [fetchJson.data] });
+        // If no data in KV, tell the user we are waiting for official sync
+        setError("Esperando datos oficiales de ONPE...");
       }
     } catch (err) {
-      setError("Error conectando con el servidor");
+      setError("Error de conexión con el centro de datos.");
     } finally {
       setLoading(false);
     }

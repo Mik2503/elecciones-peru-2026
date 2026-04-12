@@ -7,13 +7,8 @@ FROM alpine:latest
 RUN apk add --no-cache curl
 
 # Configuration
-ENV API_URL="https://elecciones-peru-2026-peach.vercel.app/api/fetch-results"
-ENV INTERVAL=60
+COPY ./scripts/sync_official.sh /sync.sh
+RUN chmod +x /sync.sh
 
 # Sync Loop
-CMD while true; do \
-    echo "[$(date)] Sincronizando con ONPE..."; \
-    curl -s -X GET "$API_URL" > /dev/null; \
-    echo "[$(date)] Sincronización completada."; \
-    sleep "$INTERVAL"; \
-    done
+CMD ["/sync.sh"]

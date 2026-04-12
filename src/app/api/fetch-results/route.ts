@@ -3,76 +3,115 @@ import { NextResponse } from "next/server";
 
 const ONPE_URL = "https://eg2026.onpe.gob.pe/resultados/presidencial.json";
 
-// Simulation data generator based on Real Boca de Urna (Ipsos/Infobae) 12 April 2026
-function generateSimulationData() {
-  const electionDate = new Date("2026-04-12T00:00:00Z").getTime();
-  const now = Date.now();
-  
-  // Real Top Candidates (Boca de Urna projections)
-  const candidates = [
-    { id: 1, name: "KEIKO FUJIMORI", party: "Fuerza Popular", votes: 3120450 + Math.floor(Math.random() * 5000), color: "#f97316" },
-    { id: 2, name: "RAFAEL LÓPEZ ALIAGA", party: "Renovación Popular", votes: 3012300 + Math.floor(Math.random() * 5000), color: "#3b82f6" },
-    { id: 3, name: "ANTAURO HUMALA", party: "A.N.T.A.U.R.O.", votes: 2850000 + Math.floor(Math.random() * 5000), color: "#ef4444" },
-    { id: 4, name: "HERNANDO DE SOTO", party: "Avanza País", votes: 1920000 + Math.floor(Math.random() * 3000), color: "#34d399" },
-    { id: 5, name: "VERÓNIKA MENDOZA", party: "Juntos por el Perú", votes: 1250000 + Math.floor(Math.random() * 2000), color: "#ec4899" },
-  ];
-  
-  const totalVotes = candidates.reduce((acc, c) => acc + c.votes, 0);
-  
-  // Real-world progress update: At 10:25 PM, official counts are usually around 15-25%
-  // We simulate a realistic crawl based on the current hour.
-  const hoursSinceClose = (now - new Date("2026-04-12T18:00:00Z").getTime()) / (1000 * 60 * 60);
-  let percentCounted = Math.min(Math.max(hoursSinceClose * 4.5, 0.5), 99.8); 
-  if (percentCounted < 0.5) percentCounted = 0.5;
+// Helper to parse ONPE's numeric strings with commas
+const parseONPENumber = (str: string) => {
+  if (!str) return 0;
+  return parseInt(str.replace(/,/g, ""), 10);
+};
 
-  return {
-    timestamp: now,
-    percentCounted: Number(percentCounted.toFixed(2)),
-    candidates: candidates.sort((a, b) => b.votes - a.votes),
-    totals: {
-      valid: totalVotes,
-      blank: Math.floor(totalVotes * 0.04),
-      null: Math.floor(totalVotes * 0.02),
-      total: Math.floor(totalVotes * 1.06)
-    }
-  };
-}
-
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const response = await fetch(ONPE_URL, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "application/json",
       },
-      next: { revalidate: 0 } // Bypass cache
+      next: { revalidate: 0 }
     });
 
-    let data;
-    if (response.ok) {
-      data = await response.json();
-      // Add timestamp if not present
-      if (!data.timestamp) data.timestamp = Date.now();
-    } else {
-      console.warn("ONPE API unreachable, using simulation data");
-      data = generateSimulationData();
+    if (!response.ok) {
+      throw new Error(`ONPE Official Server returned status ${response.status}`);
     }
 
-    // Save current state
-    await kv.set("election:current", data);
+    const rawData = await response.json();
     
-    // Save to historical list (limit to last 100 entries)
-    await kv.lpush("election:history", data);
+    // VALIDATION: Ensure it's the real official structure
+    if (!rawData.generals || !rawData.results) {
+      throw new Error("Invalid official JSON structure received from ONPE.");
+    }
+
+    const processedData = processOfficialData(rawData);
+
+    // Save to KV
+    await kv.set("election:current", processedData);
+    await kv.lpush("election:history", processedData);
     await kv.ltrim("election:history", 0, 99);
 
-    return NextResponse.json({ success: true, source: response.ok ? "ONPE" : "Simulation", data });
-  } catch (error) {
-    console.error("Fetch error:", error);
-    const data = generateSimulationData();
-    await kv.set("election:current", data);
-    await kv.lpush("election:history", data);
-    await kv.ltrim("election:history", 0, 99);
-    
-    return NextResponse.json({ success: true, source: "Simulation (Error Fallback)", data });
+    return NextResponse.json({ success: true, source: "ONPE Official API", data: processedData });
+  } catch (error: any) {
+    console.error("Official Fetch Error:", error.message);
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message,
+      message: "Check local Docker sync if Vercel is blocked by Cloudflare."
+    }, { status: 502 });
   }
+}
+
+// Support for POST requests (Official Data Pushing)
+export async function POST(request: Request) {
+  try {
+    const rawData = await request.json();
+    
+    // Check if it's the raw official structure and process it
+    let processedData;
+    if (rawData.generals && rawData.results) {
+      processedData = processOfficialData(rawData);
+    } else if (rawData.candidates && rawData.totals) {
+      processedData = rawData; // Already processed
+    } else {
+      return NextResponse.json({ success: false, error: "Invalid official JSON structure" }, { status: 400 });
+    }
+    
+    await kv.set("election:current", processedData);
+    await kv.lpush("election:history", processedData);
+    await kv.ltrim("election:history", 0, 99);
+
+    return NextResponse.json({ success: true, message: "Official data updated successfully." });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: "Processing error" }, { status: 500 });
+  }
+}
+
+function processOfficialData(data: any) {
+  const candidatesRaw = data.results.filter((item: any) => 
+    !["VOTOS EN BLANCO", "VOTOS NULOS", "TOTAL DE VOTOS EMITIDOS"].includes(item.AGRUPACION)
+  );
+
+  const nulosItem = data.results.find((item: any) => item.AGRUPACION === "VOTOS NULOS");
+  const blancosItem = data.results.find((item: any) => item.AGRUPACION === "VOTOS EN BLANCO");
+  const emitidosItem = data.results.find((item: any) => item.AGRUPACION === "TOTAL DE VOTOS EMITIDOS");
+
+  // Map to our dashboard structure
+  return {
+    timestamp: Date.now(),
+    percentCounted: parseFloat(data.generals.generalData.POR_ACTAS_CONTABILIZADAS),
+    candidates: candidatesRaw.map((c: any, index: number) => ({
+      id: index,
+      name: c.AGRUPACION,
+      party: c.AGRUPACION,
+      votes: parseONPENumber(c.TOTAL_VOTOS),
+      color: getPartyColor(c.AGRUPACION)
+    })).sort((a: any, b: any) => b.votes - a.votes),
+    totals: {
+      valid: parseONPENumber(emitidosItem?.TOTAL_VOTOS || "0") - parseONPENumber(nulosItem?.TOTAL_VOTOS || "0") - parseONPENumber(blancosItem?.TOTAL_VOTOS || "0"),
+      blank: parseONPENumber(blancosItem?.TOTAL_VOTOS || "0"),
+      null: parseONPENumber(nulosItem?.TOTAL_VOTOS || "0"),
+      total: parseONPENumber(emitidosItem?.TOTAL_VOTOS || "0")
+    }
+  };
+}
+
+function getPartyColor(party: string) {
+  const colors: Record<string, string> = {
+    "FUERZA POPULAR": "#f97316",
+    "RENOVACIÓN POPULAR": "#3b82f6",
+    "A.N.T.A.U.R.O.": "#ef4444",
+    "AVANZA PAÍS": "#34d399",
+    "JUNTOS POR EL PERÚ": "#ec4899",
+    "PERÚ LIBRE": "#ef4444",
+    "VOTOS NULOS": "#71717a",
+    "VOTOS EN BLANCO": "#52525b"
+  };
+  return colors[party] || "#71717a";
 }

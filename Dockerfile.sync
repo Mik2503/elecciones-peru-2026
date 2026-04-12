@@ -1,0 +1,19 @@
+# Docker synchronization engine for Peru 2026 Elections
+# This ensures 1-minute updates without using paid Vercel Crons.
+
+FROM alpine:latest
+
+# Install curl
+RUN apk add --no-cache curl
+
+# Configuration
+ENV API_URL="https://elecciones-peru-2026-peach.vercel.app/api/fetch-results"
+ENV INTERVAL=60
+
+# Sync Loop
+CMD while true; do \
+    echo "[$(date)] Sincronizando con ONPE..."; \
+    curl -s -X GET "$API_URL" > /dev/null; \
+    echo "[$(date)] Sincronización completada."; \
+    sleep "$INTERVAL"; \
+    done

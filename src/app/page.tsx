@@ -205,12 +205,12 @@ export default function ElectoralDashboard() {
             <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
               Dashboard <span className="text-red-500">Electoral</span>
             </h1>
-            <span className="px-3 py-1 bg-red-500 text-white text-[10px] font-bold rounded-full animate-pulse uppercase tracking-widest">
-              Live
+            <span className="px-3 py-1 bg-red-600 text-white text-[10px] font-bold rounded-full animate-pulse uppercase tracking-widest shadow-[0_0_10px_rgba(220,38,38,0.5)]">
+              12 ABRIL 2026
             </span>
           </div>
           <p className="text-zinc-400 text-sm mt-1 flex items-center gap-2">
-            Elecciones Generales Perú 2026 • Última actualización: {new Date(current.timestamp).toLocaleTimeString()}
+            Elecciones Generales Perú • Corte: {new Date(current.timestamp).toLocaleTimeString()}
           </p>
         </div>
         <div className="flex items-center gap-6">

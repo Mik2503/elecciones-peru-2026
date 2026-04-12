@@ -5,25 +5,35 @@ const ONPE_URL = "https://eg2026.onpe.gob.pe/resultados/presidencial.json";
 
 // Simulation data generator for fallback
 function generateSimulationData() {
+  const electionDate = new Date("2026-04-12T00:00:00Z").getTime();
+  const now = Date.now();
+  
+  // Candidates based on 2026 projections
   const candidates = [
-    { id: 1, name: "KEIKO FUJIMORI", party: "Fuerza Popular", votes: 2500000 + Math.floor(Math.random() * 50000), color: "#f97316" },
-    { id: 2, name: "ALBERTO OTÁROLA", party: "Independiente", votes: 2450000 + Math.floor(Math.random() * 50000), color: "#3b82f6" },
-    { id: 3, name: "ANTURO CASTILLO", party: "Perú Libre", votes: 1800000 + Math.floor(Math.random() * 30000), color: "#ef4444" },
-    { id: 4, name: "RAFAEL LÓPEZ ALIAGA", party: "Renovación Popular", votes: 1500000 + Math.floor(Math.random() * 20000), color: "#34d399" },
+    { id: 1, name: "KEIKO FUJIMORI", party: "Fuerza Popular", votes: 2845000 + Math.floor(Math.random() * 10000), color: "#f97316" },
+    { id: 2, name: "RAFAEL LÓPEZ ALIAGA", party: "Renovación Popular", votes: 2712300 + Math.floor(Math.random() * 10000), color: "#3b82f6" },
+    { id: 3, name: "ANTURO CASTILLO", party: "Perú Libre", votes: 1950000 + Math.floor(Math.random() * 8000), color: "#ef4444" },
+    { id: 4, name: "HERNANDO DE SOTO", party: "Avanza País", votes: 1420000 + Math.floor(Math.random() * 5000), color: "#34d399" },
+    { id: 5, name: "ANTURO SÁNCHEZ", party: "Alianza para el Progreso", votes: 980000 + Math.floor(Math.random() * 3000), color: "#a855f7" },
   ];
   
   const totalVotes = candidates.reduce((acc, c) => acc + c.votes, 0);
-  const percentCounted = 15 + (Date.now() % 85); // Simulated progress
+  
+  // Progress based on current time of the election day (8am to 11pm simulation)
+  // At 10pm (22:00), we should be around 80-90%
+  const hoursSinceStart = (now - electionDate) / (1000 * 60 * 60);
+  let percentCounted = Math.min(Math.max((hoursSinceStart - 8) * 6, 0.5), 99.8);
+  if (percentCounted < 0.5) percentCounted = 0.5;
 
   return {
-    timestamp: Date.now(),
+    timestamp: now,
     percentCounted: Number(percentCounted.toFixed(2)),
     candidates: candidates.sort((a, b) => b.votes - a.votes),
     totals: {
       valid: totalVotes,
-      blank: Math.floor(totalVotes * 0.05),
-      null: Math.floor(totalVotes * 0.03),
-      total: Math.floor(totalVotes * 1.08)
+      blank: Math.floor(totalVotes * 0.04),
+      null: Math.floor(totalVotes * 0.02),
+      total: Math.floor(totalVotes * 1.06)
     }
   };
 }

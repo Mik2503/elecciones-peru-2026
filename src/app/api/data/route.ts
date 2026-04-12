@@ -1,5 +1,7 @@
 import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
+import { getComprehensiveElectionData } from "../comprehensive-data/route";
+import { getCorruptionAnalysisData } from "../corruption-analysis/route";
 
 const ONPE_JSON_URL = "https://eg2026.onpe.gob.pe/resultados/presidencial.json";
 const ONPE_V1_URL = "https://eg2026.onpe.gob.pe/api/v1/presidencial/resumen";
@@ -23,7 +25,15 @@ export async function GET() {
     const history = await kv.lrange("election:history", 0, -1);
 
     if (current) {
-      return NextResponse.json({ current, history: history.reverse() });
+      // Fetch corruption analysis to include with every response
+      const comprehensiveData = getComprehensiveElectionData();
+      const corruptionData = getCorruptionAnalysisData();
+      return NextResponse.json({
+        current,
+        history: history.reverse(),
+        comprehensive: comprehensiveData,
+        corruption: corruptionData
+      });
     }
 
     // KV empty - auto-fetch through all proxies
@@ -118,10 +128,24 @@ function getBocaDeUrnaData(): any | null {
     { name: "KEIKO FUJIMORI", party: "Fuerza Popular", percent: 16.5 },
     { name: "RAFAEL LÓPEZ ALIAGA", party: "Renovación Popular", percent: 12.8 },
     { name: "JORGE NIETO", party: "Partido del Buen Gobierno", percent: 11.6 },
-    { name: "RICARDO BELMONT", party: "Partido Cívico Obras", percent: 10.5 }
+    { name: "RICARDO BELMONT", party: "Partido Cívico Obras", percent: 10.5 },
+    { name: "CARLOS ÁLVAREZ", party: "País para Todos", percent: 9.0 },
+    { name: "ALFONSO LÓPEZ CHAU", party: "Ahora Nación", percent: 6.0 },
+    { name: "CÉSAR ACUÑA", party: "Alianza para el Progreso", percent: 4.5 },
+    { name: "ROBERTO SÁNCHEZ", party: "Juntos por el Perú", percent: 4.0 },
+    { name: "MARISOL PÉREZ TELLO", party: "Primero la Gente", percent: 3.0 },
+    { name: "YONHY LESCANO", party: "Cooperación Popular", percent: 2.5 },
+    { name: "GEORGE FORSYTH", party: "Somos Perú", percent: 2.5 },
+    { name: "JOSÉ LUNA GÁLVEZ", party: "Podemos Perú", percent: 2.0 },
+    { name: "MESÍAS GUEVARA", party: "Partido Morado", percent: 1.5 },
+    { name: "FERNANDO OLIVERA", party: "Frente de la Esperanza", percent: 1.2 },
+    { name: "VLADIMIR CERRÓN", party: "Perú Libre", percent: 1.0 },
+    { name: "OTROS 20 CANDIDATOS", party: "Varios", percent: 11.4 }
   ];
   const estimatedTurnout = 20250000;
-  const estimatedTotalVotes = Math.round(estimatedTurnout * 0.85);
+  const estimatedValidVotes = Math.round(estimatedTurnout * 0.85);
+  const estimatedBlankVotes = Math.round(estimatedTurnout * 0.03);
+  const estimatedNullVotes = Math.round(estimatedTurnout * 0.05);
 
   return {
     timestamp: Date.now(),
@@ -130,14 +154,14 @@ function getBocaDeUrnaData(): any | null {
     isExitPoll: true,
     candidates: topCandidates.map((c, i) => ({
       id: i, name: c.name, party: c.party,
-      votes: Math.round(estimatedTotalVotes * c.percent / 100),
+      votes: Math.round(estimatedValidVotes * c.percent / 100),
       percent: c.percent,
       color: getPartyColor(c.party)
     })),
     totals: {
-      valid: estimatedTotalVotes,
-      blank: Math.round(estimatedTurnout * 0.03),
-      null: Math.round(estimatedTurnout * 0.05),
+      valid: estimatedValidVotes,
+      blank: estimatedBlankVotes,
+      null: estimatedNullVotes,
       total: estimatedTurnout
     },
     message: "Encuesta de salida Datum - Resultados oficiales ONPE desde las 7:30 PM"

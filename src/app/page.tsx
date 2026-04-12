@@ -2,380 +2,411 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  Cell,
-  ReferenceLine,
-  Label
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis,
+  PolarRadiusAxis, Area, AreaChart
 } from "recharts";
-import { TrendingUp, Users, FileText, AlertCircle, RefreshCcw, CheckCircle2 } from "lucide-react";
+import {
+  TrendingUp, Users, FileText, AlertCircle, RefreshCcw, CheckCircle2,
+  MapPin, Shield, Search, AlertTriangle, Eye, Zap, Globe, Scale,
+  Clock, Target, BarChart3, Activity, Flag
+} from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-/** Utility for Tailwind classes */
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }
 
-/** Types */
 interface Candidate {
-  id: number;
-  name: string;
-  party: string;
-  votes: number;
-  color: string;
+  id: number; name: string; party: string; votes: number;
+  color: string; percent?: number;
 }
-
 interface ElectionData {
-  timestamp: number;
-  percentCounted: number;
-  candidates: Candidate[];
-  totals: {
-    valid: number;
-    blank: number;
-    null: number;
-    total: number;
+  timestamp: number; status: string; percentCounted: number;
+  candidates: Candidate[]; isExitPoll?: boolean;
+  totals: { valid: number; blank: number; null: number; total: number };
+  message?: string;
+}
+interface ComprehensiveData {
+  bocaDeUrna: { candidates: Candidate[]; source: string; time: string };
+  encuestas: {
+    ipsos: { validVotePercentages: { name: string; percent: number; party: string }[]; undecided: number };
+    cpi: { validVotePercentages: { name: string; percent: number; party: string }[]; undecided: number };
   };
+  regional: Record<string, { label: string; topCandidates: { name: string; party: string; percent: number }[] }>;
+  metrics: Record<string, string>;
+  totals: { registeredVoters: number; estimatedTurnout: number; turnoutPercent: number; validVotes: number; blankVotes: number; nullVotes: number; totalVotes: number };
+}
+interface CorruptionData {
+  corruptionScore: { overall: number; level: string; color: string };
+  indicators: {
+    id: string; category: string; title: string; severity: number;
+    status: string; evidence: string; source: string; impact: string; verified: boolean;
+  }[];
+  scoreBreakdown: Record<string, { label: string; score: number; factors: string[] }>;
+  timeline: { date: string; event: string; severity: number }[];
+  verdict: { summary: string; positives: string[]; concerns: string[]; recommendation: string };
 }
 
-/** Components */
+const fmt = (n: number) => n.toLocaleString("es-PE");
+const fmtM = (n: number) => n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : (n / 1e3).toFixed(0) + "K";
 
-// 1. Circular Progress Widget
-const CircularProgress = ({ value, label }: { value: number; label: string }) => {
-  const radius = 70;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (value / 100) * circumference;
-
+/** Corruption Score Gauge */
+const CorruptionGauge = ({ score, level, color }: { score: number; level: string; color: string }) => {
+  const r = 80, c = 2 * Math.PI * r, off = c - (score / 100) * c;
   return (
-    <div className="relative flex items-center justify-center w-48 h-48">
-      <svg className="w-full h-full transform -rotate-90">
-        <circle
-          cx="96"
-          cy="96"
-          r={radius}
-          stroke="currentColor"
-          strokeWidth="12"
-          fill="transparent"
-          className="text-zinc-800"
-        />
-        <circle
-          cx="96"
-          cy="96"
-          r={radius}
-          stroke="currentColor"
-          strokeWidth="12"
-          fill="transparent"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="text-blue-500 transition-all duration-1000 ease-out drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold text-white">{value}%</span>
-        <span className="text-xs text-zinc-400 uppercase tracking-wider">{label}</span>
+    <div className="flex flex-col items-center">
+      <div className="relative w-44 h-44">
+        <svg className="w-full h-full transform -rotate-90">
+          <circle cx="88" cy="88" r={r} stroke="#27272a" strokeWidth="14" fill="transparent" />
+          <circle cx="88" cy="88" r={r} stroke={color} strokeWidth="14" fill="transparent"
+            strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round"
+            className="drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-4xl font-black text-white">{score}</span>
+          <span className="text-[10px] text-zinc-400 uppercase">/ 100</span>
+        </div>
       </div>
+      <span className="text-sm font-bold mt-2" style={{ color }}>{level}</span>
+      <span className="text-[10px] text-zinc-500 uppercase tracking-wider mt-1">Índice de Corrupción</span>
     </div>
   );
 };
 
-// 2. Stat Card
-const StatCard = ({ title, value, icon: Icon, color }: { title: string; value: string; icon: any; color: string }) => (
-  <div className="glass-card p-6 flex items-center gap-4 transition-transform hover:scale-[1.02]">
-    <div className={cn("p-3 rounded-xl bg-opacity-10", color)}>
-      <Icon className={cn("w-6 h-6", color.replace("bg-", "text-"))} />
-    </div>
-    <div>
-      <p className="text-sm text-zinc-400 font-medium">{title}</p>
-      <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
-    </div>
-  </div>
-);
-
-// 3. Custom Tooltip for the "Duelo" line
-const GapTooltip = ({ active, payload }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-red-900/90 border border-red-500/50 p-2 rounded-md shadow-lg backdrop-blur-sm">
-        <p className="text-xs font-bold text-white">DIFERENCIA</p>
-        <p className="text-sm text-red-100">{payload[0].value.toLocaleString()} votos</p>
-      </div>
-    );
-  }
-  return null;
+/** Severity Badge */
+const SeverityBadge = ({ sev }: { sev: number }) => {
+  const color = sev > 70 ? "bg-red-500/20 text-red-400 border-red-500/30" :
+    sev > 50 ? "bg-amber-500/20 text-amber-400 border-amber-500/30" :
+      sev > 0 ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30" :
+        "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
+  return <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold border", color)}>
+    {sev > 0 ? `SEVERIDAD: ${sev}/100` : `POSITIVO: ${sev}`}
+  </span>;
 };
 
-/** Main Application */
 export default function ElectoralDashboard() {
-  const [data, setData] = useState<{ current: ElectionData | null; history: ElectionData[] }>({
-    current: null,
-    history: []
+  const [data, setData] = useState<{ current: ElectionData | null; history: ElectionData[]; comprehensive?: ComprehensiveData; corruption?: CorruptionData }>({
+    current: null, history: []
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"resultados" | "regional" | "corrupcion" | "encuestas">("resultados");
+  const [lastRefresh, setLastRefresh] = useState<string>("");
+  const [expandedIndicator, setExpandedIndicator] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
       const res = await fetch("/api/data");
       const json = await res.json();
-      if (json.current) {
-        setData(json);
-        setError(null);
-      } else {
-        // If no data in KV, tell the user we are waiting for official sync
-        setError("Esperando datos oficiales de ONPE...");
-      }
-    } catch {
-      setError("Error de conexión con el centro de datos.");
-    } finally {
-      setLoading(false);
-    }
+      if (json.current) { setData(json); setError(null); setLastRefresh(new Date().toLocaleTimeString("es-PE")); }
+      else setError(json.message || "Sin datos");
+    } catch { setError("Error de conexión"); }
+    finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 60000); // Pulse check every minute
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => { fetchData(); const id = setInterval(fetchData, 30000); return () => clearInterval(id); }, []);
 
-  // Derived data for charts
-  const barData = useMemo(() => {
-    if (!data.current) return [];
-    return data.current.candidates.map(c => ({
-      name: c.name,
-      votos: c.votes,
-      color: c.color,
-      shortName: c.name.split(" ").pop()
-    }));
-  }, [data.current]);
+  const corruption = data.corruption;
+  const comprehensive = data.comprehensive;
+  const current = data.current;
 
-  const lineData = useMemo(() => {
-    if (data.history.length === 0) return [];
-    return data.history.map(h => {
-      const entry: any = { time: new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-      h.candidates.slice(0, 3).forEach(c => {
-        entry[c.name] = c.votes;
-      });
-      return entry;
-    });
-  }, [data.history]);
-
-  // Calculate position and gap for the red line
-  const duelLine = useMemo(() => {
-    if (barData.length < 2) return null;
-    const first = barData[0];
-    const second = barData[1];
-    const diff = first.votos - second.votos;
-    // We position it exactly at the midpoint between 1st and 2nd bar index (0.5 if sorted)
-    // Actually, Recharts positioning for ReferenceLine is based on scale value or string.
-    // We'll use the midpoint between the two candidates on the X scale if possible or just show stats.
-    return { diff, first, second };
-  }, [barData]);
-
-  if (loading && !data.current) {
+  if (loading && !current) {
     return (
       <div className="min-h-screen bg-[#0a0a0c] flex items-center justify-center">
-        <div className="text-center">
-          <RefreshCcw className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-white">Sincronizando con ONPE...</h2>
-          <p className="text-zinc-500 mt-2">Cargando base de datos en tiempo real</p>
-        </div>
+        <RefreshCcw className="w-12 h-12 text-blue-500 animate-spin" />
+        <p className="text-white ml-4 font-medium">Sincronizando...</p>
       </div>
     );
   }
-
-  if (error && !data.current) {
+  if (error && !current) {
     return (
       <div className="min-h-screen bg-[#0a0a0c] flex items-center justify-center">
         <div className="text-center max-w-lg px-6">
-          <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-white mb-2">Elecciones Generales 2026</h2>
-          <p className="text-zinc-400 mb-4">{error}</p>
-          <div className="text-zinc-500 text-sm space-y-3 text-left bg-zinc-900/50 p-5 rounded-lg border border-zinc-800">
-            <p className="text-amber-400 font-bold text-xs uppercase tracking-wider">Estado Actual</p>
-            <p>La ONPE protege sus servidores con un firewall que <strong className="text-zinc-300">bloquea todas las peticiones desde servidores cloud</strong> (Vercel, AWS, Azure, etc.) y proxies CORS públicos.</p>
-            <p className="border-t border-zinc-800 pt-3 mt-3"><strong className="text-zinc-300">Los datos oficiales</strong> solo son accesibles desde una <strong className="text-zinc-300">IP residencial de Perú</strong>.</p>
-            <p className="border-t border-zinc-800 pt-3 mt-3"><strong className="text-zinc-300">35 candidatos presidenciales</strong> oficiales configurados y listos para mostrar datos reales.</p>
-          </div>
-          <button
-            onClick={() => { setLoading(true); setError(null); fetchData(); }}
-            className="mt-6 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-          >
-            Reintentar Conexión
+          <AlertTriangle className="w-16 h-16 text-amber-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-white mb-2">Esperando Datos</h2>
+          <p className="text-zinc-400">{error}</p>
+          <button onClick={() => { setLoading(true); setError(null); fetchData(); }}
+            className="mt-6 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+            Reintentar
           </button>
         </div>
       </div>
     );
   }
+  if (!current) return null;
 
-  const current = data.current!;
+  const barData = (current.candidates || []).map(c => ({ name: c.name.split(" ").pop(), fullName: c.name, party: c.party, votos: c.votes, color: c.color, percent: c.percent || 0 }));
+  const radarData = corruption ? Object.entries(corruption.scoreBreakdown).map(([k, v]) => ({ name: v.label.split(" ")[0], score: v.score, fullMark: 100 })) : [];
 
   return (
-    <main className="min-h-screen p-4 md:p-8 space-y-8 animate-in fade-in duration-1000">
-      {/* Header */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-zinc-900/50 p-6 rounded-2xl border border-zinc-800">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-black text-white tracking-tighter uppercase italic">
-              Dashboard <span className="text-red-500">Electoral</span>
+    <main className="min-h-screen bg-[#0a0a0c] p-3 md:p-6 space-y-4">
+      {/* HEADER */}
+      <header className="bg-zinc-900/60 backdrop-blur-xl rounded-2xl border border-zinc-800 p-4 md:p-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase italic">
+              Electoral <span className="text-red-500">Perú</span> <span className="text-zinc-500">2026</span>
             </h1>
-            <span className="px-3 py-1 bg-red-600 text-white text-[10px] font-bold rounded-full animate-pulse uppercase tracking-widest shadow-[0_0_10px_rgba(220,38,38,0.5)]">
-              12 ABRIL 2026
-            </span>
+            <span className={cn("px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider",
+              current.isExitPoll ? "bg-amber-600/30 text-amber-300 border border-amber-500/30" : "bg-emerald-600/30 text-emerald-300 border border-emerald-500/30"
+            )}>{current.isExitPoll ? "BOCA DE URNA" : "OFICIAL"}</span>
+            <span className="px-3 py-1 bg-blue-600/30 text-blue-300 text-[10px] font-bold rounded-full border border-blue-500/30">12 ABRIL</span>
           </div>
-          <p className="text-zinc-400 text-sm mt-1 flex items-center gap-2">
-            Elecciones Generales Perú • Corte: {new Date(current.timestamp).toLocaleTimeString()}
-          </p>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="text-right hidden sm:block">
-            <p className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Estado Servidor</p>
-            <div className="flex items-center gap-2 text-emerald-500 font-medium">
-              <CheckCircle2 className="w-4 h-4" /> Conectado a Vercel KV
-            </div>
+          <div className="flex items-center gap-4 text-xs">
+            <span className="text-zinc-500 flex items-center gap-1"><Clock className="w-3 h-3" /> {lastRefresh}</span>
+            <span className="text-zinc-500">Auto-refresh: 30s</span>
+            <button onClick={fetchData} className="flex items-center gap-1 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-zinc-300">
+              <RefreshCcw className="w-3 h-3" /> Actualizar
+            </button>
           </div>
         </div>
+        <p className="text-zinc-500 text-sm mt-2">{current.status || "Datos electorales"} • {current.message || ""}</p>
       </header>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        {/* Left Column: Progress & Cards */}
-        <div className="xl:col-span-4 space-y-6">
-          <div className="glass-card p-8 flex flex-col items-center justify-center gap-4">
-            <CircularProgress
-              value={current.percentCounted > 0 ? current.percentCounted : (current as any).percentInstalled || 0}
-              label={current.percentCounted > 0 ? "Actas Contabilizadas" : "Mesas Instaladas (OFICIAL)"}
-            />
-            <div className="text-center mt-2">
-              <p className="text-zinc-500 text-xs uppercase tracking-[0.2em] font-bold italic">
-                {(current as any).status || "Estado de Jornada"}
-              </p>
-              <p className="text-zinc-300 text-sm mt-1">
-                {(current as any).message || `${current.totals.total.toLocaleString()} votos totales`}
-              </p>
-            </div>
+      {/* TABS */}
+      <nav className="flex gap-2 overflow-x-auto pb-1">
+        {[
+          { id: "resultados" as const, icon: BarChart3, label: "Resultados" },
+          { id: "regional" as const, icon: MapPin, label: "Regional" },
+          { id: "encuestas" as const, icon: Activity, label: "Encuestas" },
+          { id: "corrupcion" as const, icon: Shield, label: "🔍 Corrupción" },
+        ].map(t => (
+          <button key={t.id} onClick={() => setActiveTab(t.id)}
+            className={cn("flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all",
+              activeTab === t.id ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" : "bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800")}>
+            <t.icon className="w-4 h-4" />{t.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* ============ RESULTADOS TAB ============ */}
+      {activeTab === "resultados" && (
+        <div className="space-y-4">
+          {/* Top Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: "Votos Válidos", value: fmtM(current.totals?.valid || 0), icon: CheckCircle2, color: "text-blue-400" },
+              { label: "Votos Nulos", value: fmtM(current.totals?.null || 0), icon: AlertCircle, color: "text-red-400" },
+              { label: "Votos Blancos", value: fmtM(current.totals?.blank || 0), icon: FileText, color: "text-zinc-400" },
+              { label: "Participación", value: comprehensive ? fmtM(comprehensive.totals.estimatedTurnout) + " (75%)" : "—", icon: Users, color: "text-emerald-400" },
+            ].map(s => (
+              <div key={s.label} className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4 flex items-center gap-3">
+                <s.icon className={cn("w-8 h-8", s.color)} />
+                <div><p className="text-[10px] text-zinc-500 uppercase">{s.label}</p><p className="text-xl font-black text-white">{s.value}</p></div>
+              </div>
+            ))}
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
-            <StatCard
-              title="Votos Emitidos"
-              value={current.totals.valid.toLocaleString()}
-              icon={Users}
-              color="bg-blue-500"
-            />
-            <StatCard
-              title="Votos Blancos"
-              value={current.totals.blank.toLocaleString()}
-              icon={FileText}
-              color="bg-zinc-500"
-            />
-            <StatCard
-              title="Votos Nulos"
-              value={current.totals.null.toLocaleString()}
-              icon={AlertCircle}
-              color="bg-red-500"
-            />
-          </div>
-        </div>
-
-        {/* Right Column: Charts */}
-        <div className="xl:col-span-8 space-y-6">
-          {/* Bar Chart - The Duel */}
-          <div className="glass-card p-6 h-[450px] relative">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2 italic uppercase">
-                <TrendingUp className="w-5 h-5 text-red-500" /> El Duelo Presidencial
-              </h2>
-              {duelLine && (
-                <div className="flex items-center gap-2 px-3 py-1 bg-red-950/50 border border-red-500/30 rounded-lg">
-                  <span className="text-[10px] text-red-300 font-bold uppercase tracking-wider">Brecha:</span>
-                  <span className="text-sm font-black text-red-100">{duelLine.diff.toLocaleString()} votos</span>
-                </div>
-              )}
-            </div>
-
-            <ResponsiveContainer width="100%" height="85%">
-              <BarChart data={barData} layout="vertical" margin={{ left: 40, right: 40, top: 10 }}>
+          {/* Horizontal Bar Chart */}
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-4 md:p-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-4"><TrendingUp className="w-5 h-5 text-red-500" /> Resultados Presidenciales</h2>
+            <ResponsiveContainer width="100%" height={Math.max(400, barData.length * 36)}>
+              <BarChart data={barData} layout="vertical" margin={{ left: 50 }}>
                 <XAxis type="number" hide />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  tick={{ fill: '#71717a', fontSize: 12, fontWeight: 'bold' }}
-                  width={150}
-                />
-                <Tooltip
-                  cursor={{ fill: '#1f1f23' }}
-                  contentStyle={{ backgroundColor: '#121214', border: '1px solid #1f1f23', borderRadius: '8px' }}
-                />
-                <Bar dataKey="votos" radius={[0, 4, 4, 0]} barSize={40}>
-                  {barData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} fillOpacity={index === 0 ? 1 : 0.6} />
-                  ))}
+                <YAxis dataKey="name" type="category" tick={{ fill: '#71717a', fontSize: 11, fontWeight: 'bold' }} width={50} />
+                <Tooltip contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px' }}
+                  formatter={(v: unknown, _n: unknown, p: any) => [`${fmt(v as number)} votos (${p.payload.percent || 0}%)`, p.payload.fullName]} />
+                <Bar dataKey="votos" radius={[0, 6, 6, 0]}>
+                  {barData.map((e, i) => <Cell key={i} fill={e.color} fillOpacity={i === 0 ? 1 : 0.65} />)}
                 </Bar>
-
-                {/* Visual Gap Representation */}
-                {barData.length > 1 && (
-                  <ReferenceLine
-                    y={barData[0].name}
-                    stroke="transparent"
-                  >
-                    <Label
-                      position="top"
-                      content={() => (
-                        <foreignObject x="60%" y="25%" width="120" height="60">
-                          <div className="border-l-2 border-red-500 h-24 flex flex-col justify-center pl-3 animate-pulse">
-                            <p className="text-[10px] text-red-500 font-bold">DIFERENCIA</p>
-                            <p className="text-xs text-white font-black">{duelLine?.diff.toLocaleString()} VOTOS</p>
-                          </div>
-                        </foreignObject>
-                      )}
-                    />
-                  </ReferenceLine>
-                )}
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          {/* Line Chart - Trend */}
-          <div className="glass-card p-6 h-[350px]">
-            <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2 italic uppercase">
-              <TrendingUp className="w-5 h-5 text-blue-500" /> Histórico de Tendencia
-            </h2>
-            <ResponsiveContainer width="100%" height="80%">
-              <LineChart data={lineData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f1f23" vertical={false} />
-                <XAxis dataKey="time" tick={{ fill: '#71717a', fontSize: 10 }} axisLine={false} />
-                <YAxis hide />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#121214', border: '1px solid #1f1f23', borderRadius: '8px' }}
-                />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: 10, paddingTop: 10 }} />
-                {data.current?.candidates.slice(0, 3).map((candidate, i) => (
-                  <Line
-                    key={candidate.id}
-                    type="monotone"
-                    dataKey={candidate.name}
-                    stroke={candidate.color}
-                    strokeWidth={i === 0 ? 3 : 1.5}
-                    dot={false}
-                    activeDot={{ r: 4, strokeWidth: 0 }}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
+          {/* Candidates Table */}
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Detalle por Candidato</h3></div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800">
+                  <th className="text-left p-3">#</th><th className="text-left p-3">Candidato</th>
+                  <th className="text-right p-3">Votos</th><th className="text-right p-3">%</th><th className="text-left p-3 w-32">Barra</th>
+                </tr></thead>
+                <tbody>{barData.map((c, i) => (
+                  <tr key={i} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                    <td className="p-3 font-bold text-zinc-400">{i + 1}</td>
+                    <td className="p-3"><div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }} />
+                      <div><p className="font-semibold text-white">{c.fullName}</p><p className="text-[10px] text-zinc-500">{c.party}</p></div>
+                    </div></td>
+                    <td className="p-3 text-right font-mono text-white font-bold">{fmt(c.votos)}</td>
+                    <td className="p-3 text-right font-bold" style={{ color: c.color }}>{c.percent || 0}%</td>
+                    <td className="p-3"><div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${Math.max(c.percent || 0, 1)}%`, backgroundColor: c.color }} />
+                    </div></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <footer className="text-center text-zinc-600 text-[10px] uppercase tracking-[0.3em] font-medium pt-8">
-        © 2026 ONPE • Desarrollo de Alta Disponibilidad • Vercel Edge Framework
+      {/* ============ REGIONAL TAB ============ */}
+      {activeTab === "regional" && comprehensive && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {Object.entries(comprehensive.regional).map(([key, region]) => (
+              <div key={key} className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+                <h3 className="font-bold text-white mb-1">{region.label}</h3>
+                <p className="text-[10px] text-zinc-500 mb-3">{region.label === "Lima Metropolitana" ? "~9.5M votantes" : "Provincias"}</p>
+                <div className="space-y-2">
+                  {region.topCandidates.map((c, i) => (
+                    <div key={i} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-zinc-500 text-xs w-4">{i + 1}</span>
+                        <span className="text-sm text-zinc-300">{c.name}</span>
+                        <span className="text-[10px] text-zinc-600">{c.party}</span>
+                      </div>
+                      <span className="font-bold text-white">{c.percent}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Metrics */}
+          <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+            <h3 className="font-bold text-white mb-3 flex items-center gap-2"><Target className="w-4 h-4 text-blue-400" /> Métricas Clave</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {comprehensive.metrics && Object.entries(comprehensive.metrics).map(([k, v]) => (
+                <div key={k} className="flex gap-3"><span className="text-zinc-500 text-sm capitalize w-32 shrink-0">{k.replace(/([A-Z])/g, ' $1').trim()}:</span><span className="text-zinc-300 text-sm">{v}</span></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ ENCUESTAS TAB ============ */}
+      {activeTab === "encuestas" && comprehensive && (
+        <div className="space-y-4">
+          {[
+            { title: "Ipsos (2-3 Abril)", data: comprehensive.encuestas?.ipsos?.validVotePercentages || [] },
+            { title: "CPI (Marzo)", data: comprehensive.encuestas?.cpi?.validVotePercentages || [] },
+          ].map(poll => (
+            <div key={poll.title} className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+              <h3 className="font-bold text-white mb-4">{poll.title}</h3>
+              <ResponsiveContainer width="100%" height={poll.data.length * 36}>
+                <BarChart data={poll.data} layout="vertical">
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="name" type="category" tick={{ fill: '#71717a', fontSize: 11 }} width={50} />
+                  <Bar dataKey="percent" radius={[0, 4, 4, 0]} fill="#3b82f6" fillOpacity={0.7}>
+                    {poll.data.map((_: any, i: number) => <Cell key={i} fillOpacity={1 - i * 0.05} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ============ CORRUPCIÓN TAB ============ */}
+      {activeTab === "corrupcion" && corruption && (
+        <div className="space-y-4">
+          {/* Score Overview */}
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2 mb-6"><Shield className="w-5 h-5 text-amber-500" /> Buscador de la Verdad — Puntaje de Corrupción</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+              <CorruptionGauge score={corruption.corruptionScore.overall} level={corruption.corruptionScore.level} color={corruption.corruptionScore.color} />
+              <div className="md:col-span-2">
+                <p className="text-zinc-300 text-sm leading-relaxed">{corruption.verdict.summary}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Radar */}
+          <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+            <h3 className="font-bold text-white mb-3 flex items-center gap-2"><Activity className="w-4 h-4 text-purple-400" /> Desglose por Dimensión</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <RadarChart data={radarData}>
+                <PolarGrid stroke="#27272a" />
+                <PolarAngleAxis dataKey="name" tick={{ fill: '#a1a1aa', fontSize: 10 }} />
+                <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} axisLine={false} />
+                <Radar name="Corrupción" dataKey="score" stroke="#f59e0b" strokeWidth={2} fill="#f59e0b" fillOpacity={0.2} />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Indicators */}
+          <div className="space-y-2">
+            <h3 className="font-bold text-white flex items-center gap-2"><Search className="w-4 h-4 text-red-400" /> Indicadores de Corrupción</h3>
+            {corruption.indicators.map(ind => (
+              <div key={ind.id} className="bg-zinc-900/40 rounded-xl border border-zinc-800 overflow-hidden">
+                <button onClick={() => setExpandedIndicator(expandedIndicator === ind.id ? null : ind.id)}
+                  className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-800/30 transition-colors">
+                  <div className="flex items-center gap-3">
+                    {ind.severity > 0 ? <AlertTriangle className="w-4 h-4 text-red-400" /> : <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                    <div>
+                      <p className="font-semibold text-white text-sm">{ind.title}</p>
+                      <p className="text-[10px] text-zinc-500 uppercase">{ind.category}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <SeverityBadge sev={ind.severity} />
+                    <span className="text-zinc-500 text-xs">{expandedIndicator === ind.id ? "▲" : "▼"}</span>
+                  </div>
+                </button>
+                {expandedIndicator === ind.id && (
+                  <div className="p-4 border-t border-zinc-800 space-y-3 bg-zinc-900/60">
+                    <div>
+                      <p className="text-[10px] text-zinc-500 uppercase font-bold mb-1">Evidencia</p>
+                      <p className="text-zinc-300 text-sm leading-relaxed">{ind.evidence}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-zinc-500 uppercase font-bold mb-1">Impacto</p>
+                      <p className="text-zinc-400 text-sm">{ind.impact}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-zinc-500 uppercase font-bold mb-1">Fuente</p>
+                      <p className="text-zinc-500 text-xs italic">{ind.source}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {ind.verified ? <CheckCircle2 className="w-3 h-3 text-emerald-500" /> : <AlertCircle className="w-3 h-3 text-amber-500" />}
+                      <span className="text-[10px] text-zinc-500 uppercase">{ind.verified ? "Verificado" : "Pendiente"}</span>
+                      <span className="text-[10px] text-zinc-600">|</span>
+                      <span className="text-[10px] text-zinc-500">{ind.status}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Timeline */}
+          <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
+            <h3 className="font-bold text-white mb-4 flex items-center gap-2"><Clock className="w-4 h-4 text-blue-400" /> Línea Temporal</h3>
+            <div className="space-y-3">
+              {corruption.timeline.map((t, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: t.severity > 70 ? '#ef4444' : t.severity > 0 ? '#f59e0b' : '#10b981' }} />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-zinc-600 font-bold">{t.date}</span>
+                      <SeverityBadge sev={t.severity} />
+                    </div>
+                    <p className="text-zinc-300 text-sm mt-0.5">{t.event}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Verdict Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="bg-emerald-900/20 rounded-xl border border-emerald-500/20 p-5">
+              <h3 className="font-bold text-emerald-400 mb-3 flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> Aspectos Positivos</h3>
+              <ul className="space-y-2">{corruption.verdict.positives.map((p, i) => <li key={i} className="text-sm text-zinc-300 flex items-start gap-2"><CheckCircle2 className="w-3 h-3 text-emerald-500 mt-0.5 shrink-0" />{p}</li>)}</ul>
+            </div>
+            <div className="bg-red-900/20 rounded-xl border border-red-500/20 p-5">
+              <h3 className="font-bold text-red-400 mb-3 flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> Preocupaciones</h3>
+              <ul className="space-y-2">{corruption.verdict.concerns.map((c, i) => <li key={i} className="text-sm text-zinc-300 flex items-start gap-2"><AlertCircle className="w-3 h-3 text-red-400 mt-0.5 shrink-0" />{c}</li>)}</ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <footer className="text-center text-zinc-700 text-[10px] uppercase tracking-widest pt-4 pb-2">
+        © 2026 ONPE • Datos: Datum, Ipsos, CPI • Transparencia Electoral
       </footer>
     </main>
   );

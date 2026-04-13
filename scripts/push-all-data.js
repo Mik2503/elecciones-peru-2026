@@ -1,7 +1,5 @@
-// Push ALL election data sections to dashboard KV
-// Run: node scripts/push-all-data.js
-const { execSync } = require('child_process');
-
+// Push current ONPE data to dashboard
+// Run automatically every 30s via Windows Task Scheduler
 const allData = {
   timestamp: Date.now(),
   lastUpdate: new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' }),
@@ -48,41 +46,37 @@ const allData = {
     totals: { validVotes: 29036, blankVotes: 2772, nullVotes: 1000, totalVotes: 32808 }
   },
   senadoresUnico: {
-    totalActas: 92766, percent: 0.004,
-    parties: [
-      { name: "RENOVACION POPULAR", candidates: 4, validPercent: 25.2, emitPercent: 22.1, votes: 8276, color: "#3b82f6" },
-      { name: "PARTIDO DEL BUEN GOBIERNO", candidates: 4, validPercent: 16.8, emitPercent: 14.9, votes: 5510, color: "#6366f1" },
-      { name: "FUERZA POPULAR", candidates: 4, validPercent: 14.5, emitPercent: 12.8, votes: 4756, color: "#f97316" },
-      { name: "PARTIDO PAIS PARA TODOS", candidates: 4, validPercent: 9.1, emitPercent: 8.0, votes: 2984, color: "#a855f7" },
-      { name: "PARTIDO CIVICO OBRAS", candidates: 4, validPercent: 7.9, emitPercent: 7.0, votes: 2591, color: "#64748b" },
-      { name: "AHORA NACION - AN", candidates: 3, validPercent: 6.8, emitPercent: 6.0, votes: 2230, color: "#84cc16" },
-      { name: "PRIMERO LA GENTE", candidates: 4, validPercent: 5.0, emitPercent: 4.4, votes: 1640, color: "#facc15" },
-      { name: "PARTIDO SICREO", candidates: 3, validPercent: 3.2, emitPercent: 2.8, votes: 1050, color: "#e879f9" }
+    totalActas: 92766, percent: 0.004, parties: [
+      { name: "RENOVACION POPULAR", candidates: 4, validPercent: 25.20, emitPercent: 22.10, votes: 8276, color: "#3b82f6" },
+      { name: "PARTIDO DEL BUEN GOBIERNO", candidates: 4, validPercent: 16.80, emitPercent: 14.90, votes: 5510, color: "#6366f1" },
+      { name: "FUERZA POPULAR", candidates: 4, validPercent: 14.50, emitPercent: 12.80, votes: 4756, color: "#f97316" },
+      { name: "PARTIDO PAIS PARA TODOS", candidates: 4, validPercent: 9.10, emitPercent: 8.00, votes: 2984, color: "#a855f7" },
+      { name: "PARTIDO CIVICO OBRAS", candidates: 4, validPercent: 7.90, emitPercent: 7.00, votes: 2591, color: "#64748b" },
+      { name: "AHORA NACION - AN", candidates: 3, validPercent: 6.80, emitPercent: 6.00, votes: 2230, color: "#84cc16" },
+      { name: "PRIMERO LA GENTE", candidates: 4, validPercent: 5.00, emitPercent: 4.40, votes: 1640, color: "#facc15" },
+      { name: "PARTIDO SICREO", candidates: 3, validPercent: 3.20, emitPercent: 2.80, votes: 1050, color: "#e879f9" }
     ]
   },
   senadoresMultiple: {
-    totalActas: 26368, percent: 0.046,
-    parties: [
-      { name: "ALIANZA ELECTORAL VENCEREMOS", candidates: 4, validPercent: 18.5, emitPercent: 16.2, votes: 1205, color: "#0d9488" },
-      { name: "PARTIDO PATRIOTICO DEL PERU", candidates: 4, validPercent: 14.2, emitPercent: 12.5, votes: 925, color: "#78716c" },
-      { name: "PARTIDO CIVICO OBRAS", candidates: 4, validPercent: 12.8, emitPercent: 11.2, votes: 834, color: "#64748b" },
-      { name: "FRENTE POPULAR AGRICOLA FIA DEL PERU", candidates: 4, validPercent: 10.5, emitPercent: 9.2, votes: 684, color: "#16a34a" },
-      { name: "PARTIDO DEMOCRATA VERDE", candidates: 3, validPercent: 8.9, emitPercent: 7.8, votes: 580, color: "#4ade80" }
+    totalActas: 26368, percent: 0.046, parties: [
+      { name: "ALIANZA ELECTORAL VENCEREMOS", candidates: 4, validPercent: 18.50, emitPercent: 16.20, votes: 1205, color: "#0d9488" },
+      { name: "PARTIDO PATRIOTICO DEL PERU", candidates: 4, validPercent: 14.20, emitPercent: 12.50, votes: 925, color: "#78716c" },
+      { name: "PARTIDO CIVICO OBRAS", candidates: 4, validPercent: 12.80, emitPercent: 11.20, votes: 834, color: "#64748b" },
+      { name: "FRENTE POPULAR AGRICOLA FIA DEL PERU", candidates: 4, validPercent: 10.50, emitPercent: 9.20, votes: 684, color: "#16a34a" },
+      { name: "PARTIDO DEMOCRATA VERDE", candidates: 3, validPercent: 8.90, emitPercent: 8.00, votes: 580, color: "#4ade80" }
     ]
   },
   diputados: {
-    totalActas: 26368, percent: 0.033,
-    parties: [
-      { name: "ALIANZA ELECTORAL VENCEREMOS", candidates: 32, validPercent: 17.8, emitPercent: 15.6, votes: 1158, color: "#0d9488" },
-      { name: "PARTIDO PATRIOTICO DEL PERU", candidates: 32, validPercent: 13.9, emitPercent: 12.2, votes: 905, color: "#78716c" },
-      { name: "PARTIDO CIVICO OBRAS", candidates: 30, validPercent: 12.1, emitPercent: 10.6, votes: 788, color: "#64748b" },
-      { name: "FRENTE POPULAR AGRICOLA FIA DEL PERU", candidates: 32, validPercent: 10.2, emitPercent: 8.9, votes: 664, color: "#16a34a" },
-      { name: "PARTIDO DEMOCRATA VERDE", candidates: 31, validPercent: 9.1, emitPercent: 8.0, votes: 593, color: "#4ade80" }
+    totalActas: 26368, percent: 0.033, parties: [
+      { name: "ALIANZA ELECTORAL VENCEREMOS", candidates: 32, validPercent: 17.80, emitPercent: 15.60, votes: 1158, color: "#0d9488" },
+      { name: "PARTIDO PATRIOTICO DEL PERU", candidates: 32, validPercent: 13.90, emitPercent: 12.20, votes: 905, color: "#78716c" },
+      { name: "PARTIDO CIVICO OBRAS", candidates: 30, validPercent: 12.10, emitPercent: 10.60, votes: 788, color: "#64748b" },
+      { name: "FRENTE POPULAR AGRICOLA FIA DEL PERU", candidates: 32, validPercent: 10.20, emitPercent: 8.90, votes: 664, color: "#16a34a" },
+      { name: "PARTIDO DEMOCRATA VERDE", candidates: 31, validPercent: 9.10, emitPercent: 8.00, votes: 593, color: "#4ade80" }
     ]
   },
   parlamentoAndino: {
-    percent: 0.033,
-    parties: [
+    percent: 0.033, parties: [
       { name: "RENOVACION POPULAR", candidates: 14, validPercent: 23.524, emitPercent: 17.102, votes: 956, color: "#3b82f6" },
       { name: "PARTIDO DEL BUEN GOBIERNO", candidates: 16, validPercent: 15.797, emitPercent: 11.485, votes: 642, color: "#6366f1" },
       { name: "FUERZA POPULAR", candidates: 14, validPercent: 10.236, emitPercent: 7.442, votes: 416, color: "#f97316" },
@@ -92,14 +86,9 @@ const allData = {
       { name: "PRIMERO LA GENTE", candidates: 13, validPercent: 5.635, emitPercent: 4.097, votes: 229, color: "#facc15" },
       { name: "PARTIDO APRISTA PERUANO", candidates: 16, validPercent: 2.165, emitPercent: 1.574, votes: 88, color: "#1e40af" },
       { name: "JUNTOS POR EL PERU", candidates: 13, validPercent: 1.870, emitPercent: 1.360, votes: 76, color: "#ec4899" }
-    ],
-    totals: { validVotes: 4064, blankVotes: 651, nullVotes: 875, totalVotes: 5590 }
+    ], totals: { validVotes: 4064, blankVotes: 651, nullVotes: 875, totalVotes: 5590 }
   },
-  participacion: {
-    electoresHabiles: 27325432, totalAsistentes: 32808, totalAusentes: 21185,
-    asistentesPercent: 0.120, ausentesPercent: 0.078, pendientesPercent: 99.802,
-    exteriorAsistentes: 0.678, peruAsistentes: 0.094
-  },
+  participacion: { electoresHabiles: 27325432, totalAsistentes: 32808, totalAusentes: 21185, asistentesPercent: 0.120, ausentesPercent: 0.078, pendientesPercent: 99.802, exteriorAsistentes: 0.678, peruAsistentes: 0.094 },
   actas: {
     presidencial: { total: 92766, percent: 0.170, processed: 158, pending: 92608, pendingPercent: 99.830 },
     senadoresUnico: { total: 92766, percent: 0.004, processed: 4, pending: 92762, pendingPercent: 99.996 },
@@ -109,20 +98,20 @@ const allData = {
   }
 };
 
-// Push to dashboard
 async function push() {
   const dashboardUrl = process.env.DASHBOARD_URL || 'https://elecciones-peru-2026-peach.vercel.app';
   try {
     const res = await fetch(`${dashboardUrl}/api/data`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(allData)
     });
     const result = await res.json();
-    console.log('PUSH RESULT:', result);
+    console.log(`[${new Date().toISOString()}] PUSH OK - ${result.source} - ${result.candidates || 0} candidates`);
   } catch (err) {
-    console.error('PUSH ERROR:', err.message);
+    console.error(`[${new Date().toISOString()}] PUSH ERROR: ${err.message}`);
   }
 }
 
+// Push immediately, then every 30s
 push();
+setInterval(push, 30000);

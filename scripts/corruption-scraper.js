@@ -1,261 +1,327 @@
 const { chromium } = require('playwright');
+const fs = require('fs');
+const path = require('path');
 
-const JNE_API_BASE = 'https://web.jne.gob.pe/serviciovotoinformado/api';
-const JNE_VOTOINFO_BASE = 'https://web.jne.gob.pe/serviciovotoinformado/api/votoinf';
+const DASHBOARD_URL = process.env.DASHBOARD_URL || 'https://elecciones-peru-2026-peach.vercel.app';
+const LOG_FILE = path.join(__dirname, 'corruption-scraper.log');
 
-async function getJNEToken(page) {
-  const tokenResp = await page.goto(`${JNE_API_BASE}/authentication/token`, { waitUntil: 'networkidle', timeout: 30000 });
-  if (tokenResp.status() === 200) {
-    const tokenText = await page.evaluate(() => document.body.innerText);
-    try {
-      const tokenData = JSON.parse(tokenText);
-      return tokenData.token;
-    } catch(e) {
-      return null;
-    }
-  }
-  return null;
+function log(msg) {
+  const line = `[${new Date().toISOString()}] ${msg}`;
+  console.log(line);
+  fs.appendFileSync(LOG_FILE, line + '\n');
 }
 
-async function scrapeCorruptionData() {
-  console.log('[CORRUPCION] Starting corruption data scrape from JNE...');
+async function scrapeJNERealData() {
+  log('===========================================');
+  log('Starting REAL data scrape from JNE Voto Informado');
+  log('===========================================');
+
   const browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
   const page = await browser.newPage({ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' });
 
-  try {
-    // Step 1: Get auth token
-    console.log('[CORRUPCION] Getting JNE auth token...');
-    const token = await getJNEToken(page);
-    if (!token) {
-      console.log('[CORRUPCION] ERROR: Could not get auth token');
-      return null;
-    }
-    console.log('[CORRUPCION] Token obtained:', token.substring(0, 20) + '...');
+  // Capture API responses
+  let apiResponses = {};
 
-    // Step 2: Get all presidential candidates
-    console.log('[CORRUPCION] Fetching presidential candidates...');
-    await page.goto('https://votoinformado.jne.gob.pe/presidente-vicepresidentes', { waitUntil: 'networkidle', timeout: 60000 });
-    await page.waitForTimeout(15000);
-
-    // Extract candidate data from API responses
-    const candidates = await page.evaluate(() => {
-      return window._candidates || [];
-    });
-
-    // Step 3: For each candidate, get their hoja de vida data
-    const corruptionData = {
-      timestamp: Date.now(),
-      lastUpdate: new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' }),
-      candidatos: [],
-      planesGobierno: [],
-      patrimonio: [],
-      antecedentes: [],
-      familiares: [],
-      aportantes: [],
-      redFlags: []
-    };
-
-    // Since the JNE API requires complex auth flow, we'll scrape the visible data
-    // from the candidate detail pages which includes:
-    // - Nombre completo, partido político
-    // - Plan de gobierno resumen (dimensiones social, económica, ambiental, institucional)
-    // - Datos de hoja de vida visibles
-
-    // Navigate through candidates and extract data
-    const candidateLinks = await page.evaluate(() => {
-      const links = [];
-      const allLinks = document.querySelectorAll('a');
-      allLinks.forEach(link => {
-        if (link.href && link.href.includes('presidente') && link.textContent && link.textContent.length > 5) {
-          links.push({ href: link.href, text: link.textContent.trim() });
+  page.on('response', async resp => {
+    const url = resp.url();
+    const status = resp.status();
+    try {
+      const ct = resp.headers()['content-type'] || '';
+      if (ct.includes('json') && status === 200) {
+        const body = await resp.text();
+        if (url.includes('/authentication/token')) {
+          apiResponses.token = JSON.parse(body);
+        } else if (url.includes('/candidatos/listarcandidatos') || url.includes('/listarCanditatos')) {
+          apiResponses.candidates = JSON.parse(body);
+        } else if (url.includes('/avanzada-voto') || url.includes('/avanzadaVoto')) {
+          apiResponses.advancedVote = JSON.parse(body);
+        } else if (url.includes('/plangobierno') || url.includes('/planGobierno')) {
+          apiResponses.planGobierno = JSON.parse(body);
+        } else if (url.includes('/HojaVida') || url.includes('/hojavida') || url.includes('/HVConsolidado')) {
+          apiResponses.hojaVida = JSON.parse(body);
         }
+      }
+    } catch (e) { }
+  });
+
+  // Step 1: Navigate to trigger API calls
+  log('Step 1: Navigating to JNE to capture API data...');
+  await page.goto('https://votoinformado.jne.gob.pe/presidente-vicepresidentes', {
+    waitUntil: 'networkidle',
+    timeout: 60000
+  });
+  await page.waitForTimeout(20000);
+
+  log(`API Token: ${apiResponses.token ? 'OK' : 'MISSING'}`);
+  log(`API Candidates: ${apiResponses.candidates ? `OK (${apiResponses.candidates.length || 'array'})` : 'MISSING'}`);
+  log(`API Advanced Vote: ${apiResponses.advancedVote ? 'OK' : 'MISSING'}`);
+  log(`API Plan Gobierno: ${apiResponses.planGobierno ? 'OK' : 'MISSING'}`);
+  log(`API Hoja Vida: ${apiResponses.hojaVida ? 'OK' : 'MISSING'}`);
+
+  // Build real candidate data from captured API responses
+  const realCandidates = [];
+
+  if (apiResponses.candidates && Array.isArray(apiResponses.candidates)) {
+    log(`Processing ${apiResponses.candidates.length} candidates from API...`);
+    apiResponses.candidates.forEach((c, idx) => {
+      realCandidates.push({
+        id: idx + 1,
+        nombre: c.nombreCompleto || `${c.txNom} ${c.txApePat} ${c.txApeMat}`,
+        partido: c.txOrgPol || c.organizacionPolitica || '',
+        nroDocumento: c.txDocId || '',
+        idHojaVida: c.idHojaVida || 0,
+        idOrgPol: c.idOrgPol || 0,
+        estado: c.txEstCand || 'INSCRITO',
+        cargo: c.cargo || c.cargoObj?.join(', ') || 'PRESIDENTE',
+        nuPos: c.nuPos || 0,
+        fotoGuid: c.txGuidFoto || c.txNombre || '',
+        fotoUrl: c.txGuidFoto ? `https://mpesije.jne.gob.pe/apidocs/${c.txGuidFoto}` : '',
+        logoUrl: c.idOrgPol ? `https://votoinformado.jne.gob.pe/LogoOp/${c.idOrgPol}.jpg` : ''
       });
-      return [...new Map(links.map(l => [l.text, l])).values()].slice(0, 10);
     });
+  }
 
-    console.log('[CORRUPCION] Found candidate links:', candidateLinks.length);
-
-    // For now, extract what we can from the current page
-    // Get plan de gobierno data which is publicly visible
-    const planData = await page.evaluate(() => {
+  // If API didn't return candidates, extract from page
+  if (realCandidates.length === 0) {
+    log('API candidates empty, extracting from page...');
+    const pageCandidates = await page.evaluate(() => {
       const text = document.body.innerText;
       const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      
-      // Extract plan dimensions
-      const dimensions = [];
-      const dimKeywords = ['DIMENSION SOCIAL', 'DIMENSION ECONOMICA', 'DIMENSION AMBIENTAL', 'DIMENSION INSTITUCIONAL',
-                          'DIMENSIÓN SOCIAL', 'DIMENSIÓN ECONÓMICA', 'DIMENSIÓN AMBIENTAL', 'DIMENSIÓN INSTITUCIONAL'];
-      
-      for (const keyword of dimKeywords) {
-        const idx = lines.findIndex(l => l.toUpperCase().includes(keyword.toUpperCase().replace('Ó', 'O').replace('É', 'E')));
-        if (idx >= 0) {
-          dimensions.push({
-            name: lines[idx],
-            content: lines.slice(idx + 1, idx + 5).join(' ').substring(0, 300)
-          });
+      const candidates = [];
+      const knownParties = [
+        'AHORA NACION', 'ALIANZA ELECTORAL VENCEREMOS', 'ALIANZA PARA EL PROGRESO',
+        'AVANZA PAIS', 'FE EN EL PERU', 'FUERZA POPULAR', 'FUERZA Y LIBERTAD',
+        'JUNTOS POR EL PERU', 'LIBERTAD POPULAR', 'PARTIDO APRISTA PERUANO',
+        'PARTIDO CIVICO OBRAS', 'PARTIDO DEL BUEN GOBIERNO', 'PARTIDO DEMOCRATA UNIDO PERU',
+        'PARTIDO DEMOCRATA VERDE', 'PARTIDO DEMOCRATICO FEDERAL', 'PARTIDO DEMOCRATICO SOMOS PERU',
+        'PARTIDO FRENTE DE LA ESPERANZA 2021', 'PARTIDO MORADO', 'PARTIDO PAIS PARA TODOS',
+        'PARTIDO PATRIOTICO DEL PERU', 'PARTIDO POLITICO COOPERACION POPULAR',
+        'PARTIDO POLITICO INTEGRIDAD DEMOCRATICA', 'PARTIDO POLITICO NACIONAL PERU LIBRE',
+        'PARTIDO POLITICO PERU ACCION', 'PARTIDO POLITICO PERU PRIMERO', 'PARTIDO POLITICO PRIN',
+        'PARTIDO SICREO', 'PERU MODERNO', 'PODEMOS PERU', 'PRIMERO LA GENTE',
+        'PROGRESEMOS', 'RENOVACION POPULAR', 'SALVEMOS AL PERU', 'UN CAMINO DIFERENTE', 'UNIDAD NACIONAL'
+      ];
+
+      for (let i = 0; i < lines.length - 1; i++) {
+        // Check if this line is a party name
+        const matchingParty = knownParties.find(p => lines[i].toUpperCase().includes(p.toUpperCase()));
+        if (matchingParty && i + 1 < lines.length) {
+          const name = lines[i + 1];
+          // Skip if next line is also a party
+          const nextIsParty = knownParties.some(p => lines[i + 1].toUpperCase().includes(p.toUpperCase()));
+          if (!nextIsParty && name.length > 10 && name.length < 70) {
+            candidates.push({
+              partido: matchingParty,
+              nombre: name
+            });
+          }
         }
       }
-      
-      return dimensions;
+      return candidates;
     });
 
-    console.log('[CORRUPCION] Plan dimensions found:', planData.length);
+    pageCandidates.forEach((c, idx) => {
+      realCandidates.push({
+        id: idx + 1,
+        nombre: c.nombre,
+        partido: c.partido,
+        nroDocumento: '',
+        idHojaVida: 0,
+        idOrgPol: 0,
+        estado: 'INSCRITO',
+        cargo: 'PRESIDENTE',
+        nuPos: idx + 1,
+        fotoGuid: '',
+        fotoUrl: '',
+        logoUrl: ''
+      });
+    });
 
-    // Build candidate data from what we can scrape
-    const candidateNames = [
-      'KEIKO SOFIA FUJIMORI HIGUCHI', 'RAFAEL BERNARDO LOPEZ ALIAGA CAZORLA',
-      'JORGE NIETO MONTESINOS', 'CARLOS GONSALO ALVAREZ LOAYZA',
-      'RICARDO PABLO BELMONT CASSINELLI', 'PABLO ALFONSO LOPEZ CHAU NAVA',
-      'MARIA SOLEDAD PEREZ TELLO DE RODRIGUEZ', 'ALFONSO CARLOS ESPA Y GARCES-ALVEAR',
-      'ROBERTO HELBERT SANCHEZ PALOMINO', 'MESIAS ANTONIO GUEVARA AMASIFUEN',
-      'YONHY LESCANO ANCIETA', 'GEORGE PATRICK FORSYTH SOMMER',
-      'LUIS FERNANDO OLIVERA VEGA', 'HERBERT CALLER GUTIERREZ',
-      'MARIO ENRIQUE VIZCARRA CORNEJO', 'WOLFGANG MARIO GROZO COSTA',
-      'PITTER ENRIQUE VALDERRAMA PEÑA', 'CESAR ACUÑA PERALTA',
-      'RONALD DARWIN ATENCIO SOTOMAYOR', 'CHARLIE CARRASCO SALAZAR',
-      'RAFAEL JORGE BELAUNDE LLOSA', 'VLADIMIR ROY CERRON ROJAS',
-      'JOSE LEON LUNA GALVEZ', 'PAUL DAVIS JAIMES BLANCO',
-      'ALEX GONZALES CASTILLO', 'JOSE DANIEL WILLIAMS ZAPATA',
-      'FRANCISCO ERNESTO DIEZ-CANSECO TÁVARA', 'FIORELLA GIANNINA MOLINELLI ARISTONDO',
-      'ALVARO GONZALO PAZ DE LA BARRA FREIGEIRO', 'ARMANDO JOAQUIN MASSE FERNANDEZ',
-      'WALTER GILMER CHIRINOS PURIZAGA', 'CARLOS ERNESTO JAICO CARRANZA',
-      'ANTONIO ORTIZ VILLANO', 'ROSARIO DEL PILAR FERNANDEZ BAZAN',
-      'ROBERTO ENRIQUE CHIABRA LEON'
-    ];
-
-    const parties = [
-      'FUERZA POPULAR', 'RENOVACION POPULAR', 'PARTIDO DEL BUEN GOBIERNO',
-      'PARTIDO PAIS PARA TODOS', 'PARTIDO CIVICO OBRAS', 'AHORA NACION - AN',
-      'PRIMERO LA GENTE', 'PARTIDO SICREO', 'JUNTOS POR EL PERU',
-      'PARTIDO MORADO', 'PARTIDO POLITICO COOPERACION POPULAR',
-      'PARTIDO DEMOCRATICO SOMOS PERU', 'PARTIDO FRENTE DE LA ESPERANZA 2021',
-      'PARTIDO PATRIOTICO DEL PERU', 'PARTIDO POLITICO PERU PRIMERO',
-      'PARTIDO POLITICO INTEGRIDAD DEMOCRATICA', 'PARTIDO APRISTA PERUANO',
-      'ALIANZA PARA EL PROGRESO', 'ALIANZA ELECTORAL VENCEREMOS',
-      'PARTIDO DEMOCRATA UNIDO PERU', 'LIBERTAD POPULAR',
-      'PARTIDO POLITICO NACIONAL PERU LIBRE', 'PODEMOS PERU', 'PROGRESEMOS',
-      'PARTIDO DEMOCRATA VERDE', 'AVANZA PAIS', 'PARTIDO POLITICO PERU ACCION',
-      'FUERZA Y LIBERTAD', 'FE EN EL PERU', 'PARTIDO DEMOCRATICO FEDERAL',
-      'PARTIDO POLITICO PRIN', 'PERU MODERNO', 'SALVEMOS AL PERU',
-      'UN CAMINO DIFERENTE', 'UNIDAD NACIONAL'
-    ];
-
-    // Build real candidate objects
-    corruptionData.candidatos = candidateNames.map((name, i) => ({
-      id: i + 1,
-      nombre: name,
-      partido: parties[i],
-      fotoUrl: `https://mpesije.jne.gob.pe/apidocs/`,
-      estado: 'INSCRITO'
-    }));
-
-    // Plan de gobierno structure
-    corruptionData.planesGobierno = candidateNames.map((name, i) => ({
-      candidato: name,
-      partido: parties[i],
-      dimensiones: planData.length > 0 ? planData : [
-        { name: 'DIMENSIÓN SOCIAL', content: 'Datos disponibles en plan de gobierno JNE' },
-        { name: 'DIMENSIÓN ECONÓMICA', content: 'Datos disponibles en plan de gobierno JNE' },
-        { name: 'DIMENSIÓN AMBIENTAL', content: 'Datos disponibles en plan de gobierno JNE' },
-        { name: 'DIMENSIÓN INSTITUCIONAL', content: 'Datos disponibles en plan de gobierno JNE' }
-      ],
-      pdfUrl: `https://mpesije.jne.gob.pe/docs/`,
-      resumenUrl: `https://mpesije.jne.gob.pe/docs/`
-    }));
-
-    // Red flags based on publicly known information
-    corruptionData.redFlags = [
-      {
-        candidato: 'KEIKO SOFIA FUJIMORI HIGUCHI',
-        partido: 'FUERZA POPULAR',
-        tipo: 'ANTECEDENTE JUDICIAL',
-        descripcion: 'Procesada por caso Odebrecht. Prisión preventiva vigente. Juicio oral en curso por lavado de activos.',
-        severidad: 85,
-        fuente: 'Poder Judicial del Perú - Caso Lava Jato'
-      },
-      {
-        candidato: 'VLADIMIR ROY CERRON ROJAS',
-        partido: 'PARTIDO POLITICO NACIONAL PERU LIBRE',
-        tipo: 'ANTECEDENTE JUDICIAL',
-        descripcion: 'Sentencia firme por corrupción. Condenado a prisión por caso Los Cuellos Blancos del Puerto.',
-        severidad: 95,
-        fuente: 'Poder Judicial del Perú'
-      },
-      {
-        candidato: 'CESAR ACUÑA PERALTA',
-        partido: 'ALIANZA PARA EL PROGRESO',
-        tipo: 'PLAGIO ACADÉMICO',
-        descripcion: 'Plagio en tesis doctoral confirmado por SUNEDU. Investigado por fraude académico.',
-        severidad: 70,
-        fuente: 'SUNEDU - Resolución sobre plagio'
-      },
-      {
-        candidato: 'JOSE LEON LUNA GALVEZ',
-        partido: 'PODEMOS PERU',
-        tipo: 'ANTECEDENTE JUDICIAL',
-        descripcion: 'Procesado por presunto plagio y fraude en título profesional. Investigaciones en curso.',
-        severidad: 65,
-        fuente: 'Fiscalía de la Nación'
-      },
-      {
-        candidato: 'RAFAEL BERNARDO LOPEZ ALIAGA CAZORLA',
-        partido: 'RENOVACION POPULAR',
-        tipo: 'CONFLICTO DE INTERÉS',
-        descripcion: 'Empresas familiares con contratos públicos. Denuncias por evasión tributaria en empresas vinculadas.',
-        severidad: 55,
-        fuente: 'SUNAT / Contraloría General'
-      },
-      {
-        candidato: 'CARLOS GONSALO ALVAREZ LOAYZA',
-        partido: 'PARTIDO PAIS PARA TODOS',
-        tipo: 'INVESTIGACIÓN JUDICIAL',
-        descripcion: 'Investigado por presunto lavado de activos y vínculos con organizaciones criminales.',
-        severidad: 75,
-        fuente: 'Ministerio Público'
-      }
-    ];
-
-    console.log('[CORRUPCION] Built data for', corruptionData.candidatos.length, 'candidates');
-    console.log('[CORRUPCION] Red flags:', corruptionData.redFlags.length);
-
-    return corruptionData;
-
-  } catch (error) {
-    console.error('[CORRUPCION] ERROR:', error.message);
-    return null;
-  } finally {
-    await browser.close();
+    log(`Extracted ${realCandidates.length} candidates from page`);
   }
+
+  // Step 2: For each candidate, try to get their detailed hoja de vida data
+  log('Step 2: Fetching detailed data for each candidate...');
+
+  for (let i = 0; i < Math.min(realCandidates.length, 5); i++) {
+    const candidate = realCandidates[i];
+    log(`  Fetching details for candidate ${i + 1}: ${candidate.nombre.substring(0, 30)}...`);
+
+    // Navigate to candidate detail page
+    try {
+      // Find the link for this candidate
+      const candidateLink = await page.evaluate((name) => {
+        const links = document.querySelectorAll('a');
+        for (const link of links) {
+          if (link.textContent && link.textContent.includes(name.substring(0, 15)) && link.href.includes('presidente')) {
+            return link.href;
+          }
+        }
+        return null;
+      }, candidate.nombre);
+
+      if (candidateLink) {
+        await page.goto(candidateLink, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(8000);
+
+        // Extract detail page data
+        const detailData = await page.evaluate(() => {
+          const text = document.body.innerText;
+          const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+          // Look for plan de gobierno dimensions
+          const dimensions = [];
+          const dimKeywords = ['DIMENSION', 'DIMENSIÓN'];
+
+          for (const keyword of dimKeywords) {
+            const idx = lines.findIndex(l => l.toUpperCase().includes(keyword));
+            if (idx >= 0 && idx + 1 < lines.length) {
+              dimensions.push({
+                name: lines[idx],
+                content: lines.slice(idx + 1, idx + 4).join(' ').substring(0, 500)
+              });
+            }
+          }
+
+          // Look for candidate info
+          const formulaLine = lines.findIndex(l => l.includes('Fórmula') || l.includes('FOMULA'));
+          const partidoLine = lines.findIndex(l => l.includes('PARTIDO') || l.includes('ORGANIZACIÓN'));
+
+          return {
+            dimensions,
+            formulaLine: formulaLine >= 0 ? lines.slice(formulaLine, formulaLine + 5) : [],
+            partidoLine: partidoLine >= 0 ? lines[partidoLine] : '',
+            totalLines: lines.length
+          };
+        });
+
+        candidate.dimensiones = detailData.dimensions;
+        candidate.detalleLines = detailData.totalLines;
+
+        log(`    Extracted ${detailData.dimensions.length} plan dimensions, ${detailData.totalLines} total lines`);
+
+        // Go back to list
+        await page.goto('https://votoinformado.jne.gob.pe/presidente-vicepresidentes', { waitUntil: 'networkidle', timeout: 30000 });
+        await page.waitForTimeout(5000);
+      } else {
+        log(`    Could not find link for ${candidate.nombre.substring(0, 20)}`);
+      }
+    } catch (e) {
+      log(`    Error fetching ${candidate.nombre.substring(0, 20)}: ${e.message}`);
+    }
+  }
+
+  // Build comprehensive corruption data
+  const corruptionData = {
+    timestamp: Date.now(),
+    lastUpdate: new Date().toLocaleString('es-PE', { timeZone: 'America/Lima' }),
+    source: 'JNE Voto Informado - Datos REALES scrapeados',
+    candidatos: realCandidates,
+    apiDataCaptured: {
+      hasToken: !!apiResponses.token,
+      hasCandidates: !!apiResponses.candidates,
+      candidateCount: apiResponses.candidates?.length || 0,
+      hasAdvancedVote: !!apiResponses.advancedVote,
+      hasPlanGobierno: !!apiResponses.planGobierno,
+      hasHojaVida: !!apiResponses.hojaVida
+    },
+    moduleStatus: {
+      radarPatrimonial: {
+        available: true,
+        source: "JNE Voto Informado - Hoja de Vida",
+        url: "https://votoinformado.jne.gob.pe",
+        description: "Datos reales extraídos de la API del JNE. Cada candidato tiene idHojaVida para consulta directa."
+      },
+      buscadorFantasmas: {
+        available: false,
+        source: "ONPE Claridad + SEACE",
+        url: "https://www.gob.pe/10261-acceder-a-la-rendicion-de-cuentas-de-las-organizaciones-politicas-claridad",
+        description: "Requiere cruce de aportantes (ONPE) con contratos (SEACE). Ambas son interfaces HTML sin API."
+      },
+      historialJudicial: {
+        available: true,
+        source: "JNE Voto Informado - Antecedentes en Hoja de Vida",
+        url: "https://votoinformado.jne.gob.pe",
+        description: "Antecedentes penales declarados por cada candidato están en su Hoja de Vida del JNE."
+      },
+      redesFamiliares: {
+        available: false,
+        source: "JNE + Portal Transparencia MEF",
+        url: "https://www.transparencia.gob.pe/",
+        description: "Familiares están en Hoja de Vida del JNE. Cruce con planillas requiere Portal de Transparencia."
+      },
+      factChecker: {
+        available: true,
+        source: "JNE - Planes de Gobierno (PDFs reales)",
+        url: "https://votoinformado.jne.gob.pe",
+        description: "Planes de gobierno disponibles como PDFs en JNE. Datos reales extraídos del sitio."
+      },
+      grafoPoder: {
+        available: false,
+        source: "SEACE + ONPE Claridad",
+        url: "https://prodapp2.seace.gob.pe/seacebus-uiwd-pub/buscadorPublico/buscadorPublico.xhtml",
+        description: "Requiere cruce de datos de aportantes con contratos del Estado."
+      }
+    }
+  };
+
+  log(`===========================================`);
+  log(`Scrape complete: ${realCandidates.length} candidates with real data`);
+  log(`===========================================`);
+
+  await browser.close();
+  return corruptionData;
 }
 
-// Push to dashboard
-async function pushCorruptionData(data) {
-  const dashboardUrl = process.env.DASHBOARD_URL || 'https://elecciones-peru-2026-peach.vercel.app';
+// Push to dashboard KV
+async function pushData(data) {
   try {
-    const res = await fetch(`${dashboardUrl}/api/corruption-data`, {
+    log('Pushing data to dashboard KV...');
+    // Store in the main election data endpoint which writes to KV
+    const res = await fetch(`${DASHBOARD_URL}/api/corruption-data`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify({
+        candidatos: data.candidatos,
+        moduleStatus: data.moduleStatus,
+        apiDataCaptured: data.apiDataCaptured,
+        source: data.source
+      })
     });
     const result = await res.json();
-    console.log('[CORRUPCION] Push result:', result.success ? 'SUCCESS' : 'FAILED', result.source || result.error);
+    log(`Push result: ${result.success ? 'SUCCESS' : 'FAILED'} - ${result.source || result.error}`);
+
+    // Also try to store via the data endpoint which has KV access
+    try {
+      await fetch(`${DASHBOARD_URL}/api/data`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          corruptionData: {
+            candidatos: data.candidatos,
+            moduleStatus: data.moduleStatus,
+            lastScrape: data.timestamp
+          }
+        })
+      });
+    } catch (e) { }
+
+    return result;
   } catch (err) {
-    console.error('[CORRUPCION] Push error:', err.message);
+    log(`Push error: ${err.message}`);
+    return null;
   }
 }
 
 // Main
 async function main() {
-  console.log('===========================================');
-  console.log('ONPE Corruption Data Scraper STARTED');
-  console.log('===========================================');
-  
-  const data = await scrapeCorruptionData();
+  const data = await scrapeJNERealData();
   if (data) {
-    await pushCorruptionData(data);
+    await pushData(data);
+    // Save local cache
+    fs.writeFileSync(path.join(__dirname, 'jne-real-data.json'), JSON.stringify(data, null, 2));
+    log('Local cache saved to jne-real-data.json');
   }
 }
 
-main().catch(err => { console.error('FATAL:', err.message); process.exit(1); });
-
-module.exports = { scrapeCorruptionData };
+main().catch(err => { log(`FATAL: ${err.message}`); process.exit(1); });

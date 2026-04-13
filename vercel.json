@@ -3,15 +3,7 @@
     "crons": [
         {
             "path": "/api/fetch-results",
-            "schedule": "*/10 * * * *"
-        },
-        {
-            "path": "/api/fetch-onpe",
-            "schedule": "*/5 * * * *"
-        },
-        {
-            "path": "/api/comprehensive-data",
-            "schedule": "0 * * * *"
+            "schedule": "0 6 * * *"
         }
     ]
 }

@@ -256,77 +256,166 @@ function ParlamentoSection({ data }: { data?: { parties?: any[]; percent?: numbe
 
 function ParticipacionSection({ data }: { data: any }) {
   const total = data.electoresHabiles || 27325432;
+  const hasData = data.totalAsistentes > 0 || data.asistentesPercent > 0;
+
   return (
     <div className="space-y-4">
       <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-4">
         <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-emerald-500" /> Participación Ciudadana</h2>
+        {data.actasPct > 0 && <p className="text-zinc-500 text-sm mt-1">Basado en {data.actasPct}% de actas contabilizadas ({data.totalActas?.toLocaleString()} total)</p>}
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+
+      {/* Main stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "Electores Hábiles", value: fmt(data.electoresHabiles), icon: Users, color: "text-blue-400" },
           { label: "Asistentes", value: fmt(data.totalAsistentes), icon: CheckCircle2, color: "text-emerald-400" },
           { label: "Ausentes", value: fmt(data.totalAusentes), icon: AlertCircle, color: "text-red-400" },
-          { label: "% Asistentes", value: data.asistentesPercent + "%", icon: Activity, color: "text-green-400" },
-          { label: "% Ausentes", value: data.ausentesPercent + "%", icon: Activity, color: "text-orange-400" },
-          { label: "% Pendientes", value: data.pendientesPercent + "%", icon: Clock, color: "text-zinc-400" },
+          { label: "Pendientes", value: fmt(total - (data.totalAsistentes || 0) - (data.totalAusentes || 0)), icon: Clock, color: "text-zinc-400" },
         ].map(s => (
           <div key={s.label} className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4 flex items-center gap-3">
             <s.icon className={s.color + " w-8 h-8"} /><div><p className="text-[10px] text-zinc-500 uppercase">{s.label}</p><p className="text-xl font-black text-white">{s.value}</p></div>
           </div>
         ))}
       </div>
-      {/* Progress bars */}
-      <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6 space-y-4">
-        <h3 className="font-bold text-white">Distribución de Participación</h3>
-        {[
-          { label: "Asistentes", pct: data.asistentesPercent, color: "bg-emerald-500" },
-          { label: "Ausentes", pct: data.ausentesPercent, color: "bg-red-500" },
-          { label: "Pendientes", pct: data.pendientesPercent, color: "bg-zinc-600" },
-        ].map(b => (
-          <div key={b.label}>
-            <div className="flex justify-between text-sm mb-1"><span className="text-zinc-400">{b.label}</span><span className="text-white font-bold">{b.pct}%</span></div>
-            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden"><div className={`h-full ${b.color} rounded-full`} style={{ width: `${Math.max(b.pct, 0.1)}%` }} /></div>
-          </div>
-        ))}
-      </div>
+
+      {/* Percentages */}
+      {hasData && (
+        <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6 space-y-4">
+          <h3 className="font-bold text-white">Porcentaje de Participación</h3>
+          {[
+            { label: "Asistentes", pct: data.asistentesPercent, color: "bg-emerald-500", count: data.totalAsistentes },
+            { label: "Ausentes", pct: data.ausentesPercent, color: "bg-red-500", count: data.totalAusentes },
+            { label: "Pendientes", pct: data.pendientesPercent, color: "bg-zinc-600", count: total - (data.totalAsistentes || 0) - (data.totalAusentes || 0) },
+          ].map(b => (
+            <div key={b.label}>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-zinc-400">{b.label}</span>
+                <span className="text-white font-bold">{b.pct}% {b.count ? `(${fmt(b.count)})` : ''}</span>
+              </div>
+              <div className="h-4 bg-zinc-800 rounded-full overflow-hidden">
+                <div className={`h-full ${b.color} rounded-full transition-all`} style={{ width: `${Math.max(b.pct, 0.1)}%` }} />
+              </div>
+            </div>
+          ))}
+          <p className="text-zinc-600 text-[10px] italic">* Ciudadanos pendientes: Porcentaje aún no clasificado. Se actualizará conforme avance la contabilización.</p>
+        </div>
+      )}
+
       {/* Exterior vs Peru */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
           <p className="text-zinc-500 text-xs uppercase mb-1">Extranjero</p>
-          <p className="text-2xl font-black text-white">{data.exteriorAsistentes}%</p>
+          <p className="text-3xl font-black text-white">{data.exteriorAsistentes || 0}%</p>
           <p className="text-zinc-600 text-xs">asistencia en el exterior</p>
         </div>
         <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-5">
           <p className="text-zinc-500 text-xs uppercase mb-1">Perú</p>
-          <p className="text-2xl font-black text-white">{data.peruAsistentes}%</p>
+          <p className="text-3xl font-black text-white">{data.peruAsistentes || 0}%</p>
           <p className="text-zinc-600 text-xs">asistencia en Perú</p>
         </div>
       </div>
+
+      {!hasData && (
+        <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-8 text-center">
+          <Clock className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+          <p className="text-zinc-400">Datos de participación se actualizarán cuando la ONPE procese más actas</p>
+        </div>
+      )}
     </div>
   );
 }
 
-function ActasSection({ data }: { data: Record<string, { total: number; percent: number; processed: number; pending: number; pendingPercent: number }> }) {
-  const labels: Record<string, string> = { presidencial: "Presidencial", senadoresUnico: "Senadores D.E. Único", senadoresMultiple: "Senadores D.E. Múltiple", diputados: "Diputados", parlamentoAndino: "Parlamento Andino" };
+function ActasSection({ data }: { data: Record<string, { total: number; percent: number; processed: number; jeePercent?: number; jeeCount?: number; pending: number; pendingPercent: number }> }) {
+  const labels: Record<string, string> = {
+    presidencial: "Presidencial",
+    senadoresUnico: "Senadores D.E. Único",
+    senadoresMultiple: "Senadores D.E. Múltiple",
+    diputados: "Diputados",
+    parlamentoAndino: "Parlamento Andino"
+  };
+
+  const totalActas = 92766;
+
   return (
     <div className="space-y-4">
-      <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-4"><h2 className="text-lg font-bold text-white flex items-center gap-2"><FileText className="w-5 h-5 text-amber-500" /> Estado de Actas</h2></div>
+      <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-4">
+        <h2 className="text-lg font-bold text-white flex items-center gap-2"><FileText className="w-5 h-5 text-amber-500" /> Estado de Actas</h2>
+        <p className="text-zinc-500 text-sm mt-1">Total de actas: {fmt(totalActas)} | Datos por tipo de elección</p>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {Object.entries(data).map(([key, val]) => (
+          <div key={key} className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-4">
+            <p className="text-[10px] text-zinc-500 uppercase mb-1">{labels[key] || key}</p>
+            <p className="text-2xl font-black text-white">{val.percent}%</p>
+            <p className="text-zinc-400 text-xs">{fmt(val.processed)} de {fmt(val.total)} actas</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Detailed table */}
       <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800">
-            <th className="text-left p-3">Tipo</th><th className="text-right p-3">Total</th><th className="text-right p-3">Procesadas</th><th className="text-right p-3">%</th><th className="text-right p-3">Pendientes</th><th className="text-left p-3 w-40">Progreso</th>
-          </tr></thead>
-          <tbody>{Object.entries(data).map(([key, val]) => (
-            <tr key={key} className="border-b border-zinc-800/50">
-              <td className="p-3 text-white font-semibold">{labels[key] || key}</td>
-              <td className="p-3 text-right font-mono text-zinc-400">{fmt(val.total)}</td>
-              <td className="p-3 text-right font-mono text-emerald-400 font-bold">{fmt(val.processed)}</td>
-              <td className="p-3 text-right font-bold text-white">{val.percent}%</td>
-              <td className="p-3 text-right font-mono text-zinc-500">{fmt(val.pending)}</td>
-              <td className="p-3"><div className="h-2 bg-zinc-800 rounded-full overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.max(val.percent, 0.1)}%` }} /></div></td>
-            </tr>
-          ))}</tbody>
-        </table>
+        <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Detalle por Tipo de Elección</h3></div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800">
+                <th className="text-left p-3">Tipo</th>
+                <th className="text-right p-3">Total</th>
+                <th className="text-right p-3">Contabilizadas</th>
+                <th className="text-right p-3">%</th>
+                <th className="text-right p-3">Envío JEE</th>
+                <th className="text-right p-3">Pendientes</th>
+                <th className="text-left p-3 w-40">Progreso</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(data).map(([key, val]) => (
+                <tr key={key} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                  <td className="p-3 text-white font-semibold">{labels[key] || key}</td>
+                  <td className="p-3 text-right font-mono text-zinc-400">{fmt(val.total)}</td>
+                  <td className="p-3 text-right font-mono text-emerald-400 font-bold">{fmt(val.processed)}</td>
+                  <td className="p-3 text-right font-bold text-white">{val.percent}%</td>
+                  <td className="p-3 text-right font-mono text-amber-400">{val.jeeCount ? fmt(val.jeeCount) : '—'}</td>
+                  <td className="p-3 text-right font-mono text-zinc-500">{fmt(val.pending)}</td>
+                  <td className="p-3">
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${Math.max(val.percent, 0.1)}%` }} />
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Visual comparison chart */}
+      <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+        <h3 className="font-bold text-white mb-4">Comparación de Avance por Elección</h3>
+        <div className="space-y-3">
+          {Object.entries(data).map(([key, val]) => (
+            <div key={key}>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-zinc-400">{labels[key] || key}</span>
+                <span className="text-white font-bold">{val.percent}%</span>
+              </div>
+              <div className="h-6 bg-zinc-800 rounded-full overflow-hidden flex">
+                <div className="h-full bg-emerald-500 transition-all" style={{ width: `${val.percent}%` }} />
+                {val.jeePercent && val.jeePercent > 0 && (
+                  <div className="h-full bg-amber-500 transition-all" style={{ width: `${val.jeePercent}%` }} />
+                )}
+              </div>
+              <div className="flex justify-between text-[10px] text-zinc-600 mt-0.5">
+                <span>Contabilizadas: {fmt(val.processed)}</span>
+                {val.jeeCount && val.jeeCount > 0 && <span className="text-amber-600">JEE: {fmt(val.jeeCount)}</span>}
+                <span>Pendientes: {fmt(val.pending)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -347,16 +347,99 @@ async function scrapeParticipacion(page) {
   return page.evaluate(() => {
     function parseNum(s) { return s ? parseInt(s.replace(/,/g, '').replace(/'/g, '').trim(), 10) : 0; }
     const text = document.body.innerText;
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+    // Find values by looking for labels
+    let electoresHabiles = 0, totalAsistentes = 0, totalAusentes = 0;
+    let asistentesPercent = 0, ausentesPercent = 0, pendientesPercent = 0;
+    let exteriorAsistentes = 0, peruAsistentes = 0;
+    let actasPct = 0, totalActas = 0;
+
+    for (let i = 0; i < lines.length - 1; i++) {
+      // Electores hábiles
+      if (lines[i] === 'Electores hábiles' && lines[i + 1]?.match(/^[\d',]+$/)) {
+        electoresHabiles = parseNum(lines[i + 1]);
+      }
+      // Total de asistentes - the number may be on next line concatenated with "Total de ausentes"
+      // Format:
+      // Line i: "Total de asistentes"
+      // Line i+1: "9'677,692Total de ausentes"
+      // Line i+2: "2'657,995"
+      if (lines[i] === 'Total de asistentes') {
+        // Check next line for concatenated format: "9'677,692Total de ausentes"
+        if (lines[i + 1]?.match(/[\d',]+Total de ausentes/)) {
+          const concatMatch = lines[i + 1].match(/([\d',]+)Total de ausentes/);
+          if (concatMatch) {
+            totalAsistentes = parseNum(concatMatch[1]);
+          }
+          // Ausentes number is on line i+2
+          if (lines[i + 2]?.match(/^[\d',]+$/)) {
+            totalAusentes = parseNum(lines[i + 2]);
+          }
+        } else {
+          // Try standard format
+          const match = lines[i].match(/Total de asistentes\s*:?[\s]*([\d',]+)/);
+          if (match) totalAsistentes = parseNum(match[1]);
+          if (!match && lines[i + 1]?.match(/^[\d',]+$/)) {
+            totalAsistentes = parseNum(lines[i + 1]);
+          }
+        }
+      }
+      // Total de ausentes - check if already captured from concatenation
+      if (lines[i].includes('Total de ausentes') && totalAusentes === 0) {
+        const match = lines[i].match(/Total de ausentes\s*:?[\s]*([\d',]+)/);
+        if (match) totalAusentes = parseNum(match[1]);
+        if (!match && lines[i + 1]?.match(/^[\d',]+$/)) {
+          totalAusentes = parseNum(lines[i + 1]);
+        }
+      }
+      // Ciudadanos asistentes %
+      if (lines[i].includes('Ciudadanos asistentes:')) {
+        const m = lines[i].match(/([\d.]+)\s*%/);
+        if (m) asistentesPercent = parseFloat(m[1]);
+      }
+      // Ciudadanos ausentes %
+      if (lines[i].includes('Ciudadanos ausentes:')) {
+        const m = lines[i].match(/([\d.]+)\s*%/);
+        if (m) ausentesPercent = parseFloat(m[1]);
+      }
+      // Ciudadanos pendientes % (has * at end: "Ciudadanos pendientes: 54.857 % *")
+      if (lines[i].startsWith('Ciudadanos pendientes:') && pendientesPercent === 0) {
+        const m = lines[i].match(/Ciudadanos pendientes:\s*([\d.]+)\s*%/);
+        if (m) pendientesPercent = parseFloat(m[1]);
+      }
+      // EXTRANJERO
+      if (lines[i] === 'EXTRANJERO' && lines[i + 1]?.includes('asistieron')) {
+        const m = lines[i + 1].match(/([\d.]+)\s*%/);
+        if (m) exteriorAsistentes = parseFloat(m[1]);
+      }
+      // PERÚ
+      if (lines[i] === 'PERÚ' && lines[i + 1]?.includes('asistieron')) {
+        const m = lines[i + 1].match(/([\d.]+)\s*%/);
+        if (m) peruAsistentes = parseFloat(m[1]);
+      }
+      // Actas contabilizadas %
+      if (lines[i] === 'Actas contabilizadas' && lines[i + 1]?.match(/^[\d.]+\s*%$/)) {
+        actasPct = parseFloat(lines[i + 1]);
+      }
+      // Total de actas
+      if (lines[i].includes('Total de actas:')) {
+        const m = lines[i].match(/([\d,]+)/);
+        if (m) totalActas = parseNum(m[1]);
+      }
+    }
 
     return {
-      electoresHabiles: (() => { const m = text.match(/Electores habiles:\s*([\d,]+)/); return m ? parseNum(m[1]) : 27325432; })(),
-      totalAsistentes: (() => { const m = text.match(/Total de asistentes:\s*([\d,]+)/); return m ? parseNum(m[1]) : 0; })(),
-      totalAusentes: (() => { const m = text.match(/Total de ausentes:\s*([\d,]+)/); return m ? parseNum(m[1]) : 0; })(),
-      asistentesPercent: (() => { const m = text.match(/Ciudadanos asistentes:\s*([\d.]+)%/); return m ? parseFloat(m[1]) : 0; })(),
-      ausentesPercent: (() => { const m = text.match(/Ciudadanos ausentes:\s*([\d.]+)%/); return m ? parseFloat(m[1]) : 0; })(),
-      pendientesPercent: (() => { const m = text.match(/Ciudadanos pendientes:\s*([\d.]+)%/); return m ? parseFloat(m[1]) : 0; })(),
-      exteriorAsistentes: (() => { const m = text.match(/EXTRANJERO\s*([\d.]+)%/); return m ? parseFloat(m[1]) : 0; })(),
-      peruAsistentes: (() => { const m = text.match(/PERU\s*([\d.]+)%/); return m ? parseFloat(m[1]) : 0; })()
+      electoresHabiles: electoresHabiles || 27325432,
+      totalAsistentes,
+      totalAusentes,
+      asistentesPercent,
+      ausentesPercent,
+      pendientesPercent,
+      exteriorAsistentes,
+      peruAsistentes,
+      actasPct,
+      totalActas
     };
   });
 }
@@ -369,23 +452,65 @@ async function scrapeActas(page) {
   return page.evaluate(() => {
     function parseNum(s) { return s ? parseInt(s.replace(/,/g, '').replace(/'/g, '').trim(), 10) : 0; }
     const text = document.body.innerText;
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     const result = {};
 
-    const types = ['PRESIDENCIAL', 'SENADORES D.E. UNICO', 'SENADORES D.E. MULTIPLE', 'DIPUTADOS', 'PARLAMENTO ANDINO'];
-    for (const type of types) {
-      const regex = new RegExp(`${type.replace('.', '\\.')}\\s*([\\d,]+)\\s*([\\d.]+)%\\s*([\\d,]+)\\s*([\\d,]+)\\s*([\\d.]+)%`);
-      const match = text.match(regex);
-      if (match) {
-        const key = type.toLowerCase().replace(/[^a-z]/g, '').replace('senadoresunico', 'senadoresUnico').replace('senadoresmultiple', 'senadoresMultiple');
+    // Election type names to look for
+    const typeNames = ['PRESIDENCIAL', 'SENADORES DISTRITO ELECTORAL ÚNICO', 'SENADORES DISTRITO ELECTORAL MÚLTIPLE', 'DIPUTADOS', 'PARLAMENTO ANDINO'];
+
+    for (const typeName of typeNames) {
+      const idx = lines.findIndex(l => l === typeName);
+      if (idx === -1 || idx + 12 >= lines.length) continue;
+
+      // Format:
+      // PRESIDENCIAL
+      // Actas contabilizadas
+      // XX.XXX %
+      // Contabilizadas
+      // XX.XXX %
+      // XX,XXX
+      // Para envío al JEE
+      // X.XXX %
+      // XXX
+      // Pendientes
+      // XX.XXX %
+      // XX,XXX
+      // TOTALXX,XXX
+
+      const contabPct = lines[idx + 2]?.match(/^([\d.]+)\s*%$/);
+      const contabCount = lines[idx + 5]?.match(/^([\d,]+)$/);
+      const jeePct = lines[idx + 7]?.match(/^([\d.]+)\s*%$/);
+      const jeeCount = lines[idx + 8]?.match(/^([\d,]+)$/);
+      const pendPct = lines[idx + 10]?.match(/^([\d.]+)\s*%$/);
+      const pendCount = lines[idx + 11]?.match(/^([\d,]+)$/);
+      const totalMatch = lines[idx + 12]?.match(/TOTAL([\d,]+)/);
+
+      if (contabPct && contabCount && pendCount) {
+        // Normalize key name - remove accents and special chars
+        let key = typeName.toLowerCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Remove accents
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, '');
+
+        // Map to expected keys
+        if (key.includes('presidencial')) key = 'presidencial';
+        else if (key.includes('senadores') && key.includes('unico')) key = 'senadoresUnico';
+        else if (key.includes('senadores') && key.includes('multiple')) key = 'senadoresMultiple';
+        else if (key.includes('diputados')) key = 'diputados';
+        else if (key.includes('parlamento')) key = 'parlamentoAndino';
+
         result[key] = {
-          total: parseNum(match[1]),
-          percent: parseFloat(match[2]),
-          processed: parseNum(match[3]),
-          pending: parseNum(match[4]),
-          pendingPercent: parseFloat(match[5])
+          total: totalMatch ? parseNum(totalMatch[1]) : 92766,
+          percent: parseFloat(contabPct[1]),
+          processed: parseNum(contabCount[1]),
+          jeePercent: jeePct ? parseFloat(jeePct[1]) : 0,
+          jeeCount: jeeCount ? parseNum(jeeCount[1]) : 0,
+          pending: parseNum(pendCount[1]),
+          pendingPercent: pendPct ? parseFloat(pendPct[1]) : 0
         };
       }
     }
+
     return result;
   });
 }

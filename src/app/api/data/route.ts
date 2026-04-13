@@ -1,5 +1,7 @@
 import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
+import { getComprehensiveElectionData } from "../comprehensive-data/route";
+import { getCorruptionAnalysisData } from "../corruption-analysis/route";
 
 // ============================================================================
 // REAL-TIME ELECTION DATA ENDPOINT
@@ -43,7 +45,10 @@ export async function GET() {
         console.log("[data] SUCCESS from ONPE JSON via proxy");
         const processed = processONPEData(data);
         await saveToKV(processed);
-        return NextResponse.json({ current: processed, source: "ONPE Official (via proxy)", fresh: true });
+        return NextResponse.json({
+          current: processed, source: "ONPE Official (via proxy)", fresh: true,
+          comprehensive: getComprehensiveElectionData(), corruption: getCorruptionAnalysisData()
+        });
       }
     } catch { /* continue */ }
   }
@@ -61,7 +66,10 @@ export async function GET() {
         console.log("[data] SUCCESS from ONPE v1 via proxy");
         const processed = processONPEV1Data(data);
         await saveToKV(processed);
-        return NextResponse.json({ current: processed, source: "ONPE v1 API (via proxy)", fresh: true });
+        return NextResponse.json({
+          current: processed, source: "ONPE v1 API (via proxy)", fresh: true,
+          comprehensive: getComprehensiveElectionData(), corruption: getCorruptionAnalysisData()
+        });
       }
     } catch { /* continue */ }
   }
@@ -82,7 +90,10 @@ export async function GET() {
         console.log("[data] SUCCESS direct from ONPE");
         const processed = url === ONPE_JSON ? processONPEData(data) : processONPEV1Data(data);
         await saveToKV(processed);
-        return NextResponse.json({ current: processed, source: "ONPE Direct", fresh: true });
+        return NextResponse.json({
+          current: processed, source: "ONPE Direct", fresh: true,
+          comprehensive: getComprehensiveElectionData(), corruption: getCorruptionAnalysisData()
+        });
       }
     } catch { /* continue */ }
   }
@@ -92,7 +103,11 @@ export async function GET() {
   if (existing) {
     const history = await kv.lrange("election:history", 0, -1);
     console.log("[data] Returning cached KV data");
-    return NextResponse.json({ current: existing, history: history.reverse(), source: "KV Cache" });
+    return NextResponse.json({
+      current: existing, history: history.reverse(), source: "KV Cache",
+      comprehensive: getComprehensiveElectionData(),
+      corruption: getCorruptionAnalysisData()
+    });
   }
 
   // === 5. All failed - return boca de urna as reference ===
@@ -101,9 +116,12 @@ export async function GET() {
   await saveToKV(bocaData);
   return NextResponse.json({
     current: bocaData,
+    history: [bocaData],
     source: "Boca de Urna Datum (reference - waiting for official data)",
     fresh: false,
-    note: "Datos de encuesta de salida. Resultados oficiales ONPE cuando estén disponibles."
+    note: "Datos de encuesta de salida. Resultados oficiales ONPE cuando estén disponibles.",
+    comprehensive: getComprehensiveElectionData(),
+    corruption: getCorruptionAnalysisData()
   });
 }
 

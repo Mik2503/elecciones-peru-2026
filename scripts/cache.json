@@ -1,0 +1,75 @@
+{
+  "timestamp": 1776044290129,
+  "lastUpdate": "12/4/2026, 8:38:10 p. m.",
+  "presidenciales": {
+    "totalActas": 92766,
+    "processedActas": 0,
+    "pendingActas": 0,
+    "percent": 0,
+    "candidates": [],
+    "totals": {
+      "validVotes": 0,
+      "blankVotes": 0,
+      "nullVotes": 0,
+      "totalVotes": 0
+    }
+  },
+  "senadoresUnico": {
+    "totalActas": 92766,
+    "percent": 0,
+    "parties": []
+  },
+  "senadoresMultiple": {
+    "totalActas": 26368,
+    "percent": 0,
+    "parties": []
+  },
+  "diputados": {
+    "totalActas": 26368,
+    "percent": 0,
+    "parties": []
+  },
+  "parlamentoAndino": {
+    "percent": 0,
+    "parties": [],
+    "totals": {
+      "validVotes": 0,
+      "blankVotes": 0,
+      "nullVotes": 0,
+      "totalVotes": 0
+    }
+  },
+  "participacion": {
+    "electoresHabiles": 0,
+    "totalAsistentes": 0,
+    "totalAusentes": 0,
+    "asistentesPercent": 0,
+    "ausentesPercent": 0,
+    "pendientesPercent": 0,
+    "exteriorAsistentes": 0,
+    "peruAsistentes": 0
+  },
+  "actas": {
+    "presidencial": {
+      "total": 0,
+      "percent": 0,
+      "processed": 0,
+      "pending": 0,
+      "pendingPercent": 0
+    },
+    "diputados": {
+      "total": 0,
+      "percent": 0,
+      "processed": 0,
+      "pending": 0,
+      "pendingPercent": 0
+    },
+    "parlamentoandino": {
+      "total": 0,
+      "percent": 0,
+      "processed": 0,
+      "pending": 0,
+      "pendingPercent": 0
+    }
+  }
+}

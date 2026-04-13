@@ -523,12 +523,31 @@ function CorrupcionSection() {
               <div className="mt-3 space-y-2">
                 <p className="text-zinc-500 text-xs">Fuentes necesarias:</p>
                 <ul className="text-zinc-400 text-xs space-y-1 ml-4 list-disc">
-                  <li>ONPE Claridad - Aportantes de campaña (interfaz HTML)</li>
-                  <li>SEACE - Contratos del Estado (interfaz HTML)</li>
+                  <li>ONPE Claridad - Aportantes de campaña (interfaz HTML sin API)</li>
+                  <li>SEACE - Contratos del Estado (interfaz HTML sin API)</li>
                   <li>SUNAT - Estado de empresas (bloqueado por CAPTCHA)</li>
                 </ul>
               </div>
-              <a href={corruptionData?.moduleStatus?.buscadorFantasmas?.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs mt-3 inline-block hover:underline">→ Ir a ONPE Claridad</a>
+            </div>
+          </div>
+          {/* Show all candidates directly */}
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Candidatos - Datos Reales del JNE</h3></div>
+            <div className="max-h-[400px] overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
+                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Nombre</th><th className="text-left p-3">Partido</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Estado</th>
+                </tr></thead>
+                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
+                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
+                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
+                    <td className="p-3 text-zinc-400">{c.partido}</td>
+                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento || '—'}</td>
+                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30">{c.estado || 'INSCRITO'}</span></td>
+                  </tr>
+                ))}</tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -595,10 +614,29 @@ function CorrupcionSection() {
                 <p className="text-zinc-500 text-xs">Fuentes necesarias:</p>
                 <ul className="text-zinc-400 text-xs space-y-1 ml-4 list-disc">
                   <li>JNE Voto Informado - Nombres de familiares en Hoja de Vida</li>
-                  <li>Portal de Transparencia MEF - Planillas del Estado</li>
+                  <li>Portal de Transparencia MEF - Planillas del Estado (sin API)</li>
                 </ul>
               </div>
-              <a href={corruptionData?.moduleStatus?.redesFamiliares?.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs mt-3 inline-block hover:underline">→ Ir a Portal de Transparencia</a>
+            </div>
+          </div>
+          {/* Show all candidates directly */}
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Candidatos - Datos Reales del JNE</h3></div>
+            <div className="max-h-[400px] overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
+                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Nombre</th><th className="text-left p-3">Partido</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Estado</th>
+                </tr></thead>
+                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
+                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
+                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
+                    <td className="p-3 text-zinc-400">{c.partido}</td>
+                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento || '—'}</td>
+                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30">{c.estado || 'INSCRITO'}</span></td>
+                  </tr>
+                ))}</tbody>
+              </table>
             </div>
           </div>
         </div>

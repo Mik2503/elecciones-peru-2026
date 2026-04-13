@@ -24,7 +24,6 @@ export async function GET() {
 }
 
 export function getComprehensiveElectionData() {
-  const now = Date.now();
   const estimatedTurnout = 20250000;
   const estimatedValidVotes = Math.round(estimatedTurnout * 0.85);
   const estimatedBlankVotes = Math.round(estimatedTurnout * 0.03);
@@ -37,6 +36,7 @@ export function getComprehensiveElectionData() {
       source: "Datum Internacional",
       time: "6:00 PM PET - 12 de abril 2026",
       type: "Encuesta de salida",
+      updatedAt: new Date().toISOString(),
       candidates: [
         { name: "Keiko Fujimori", party: "Fuerza Popular", percent: 16.5, votes: Math.round(estimatedValidVotes * 0.165), color: "#f97316" },
         { name: "Rafael López Aliaga", party: "Renovación Popular", percent: 12.8, votes: Math.round(estimatedValidVotes * 0.128), color: "#3b82f6" },

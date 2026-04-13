@@ -14,72 +14,7 @@ const PROXIES = (url: string) => [
 
 export async function GET() {
   // ============================================================
-  // STEP 1: Try direct fetch to ONPE API v1 (most reliable)
-  // ============================================================
-  try {
-    const res = await fetch(ONPE_V1, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "application/json, text/plain, */*",
-        "Referer": "https://eg2026.onpe.gob.pe/",
-        "Origin": "https://eg2026.onpe.gob.pe",
-      },
-      next: { revalidate: 60 }, // Auto-refresh every 60s at the edge
-      cache: "no-store",
-      signal: AbortSignal.timeout(15000),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.generals && data?.results) {
-        const processed = processONPEData(data);
-        // Update KV with fresh data
-        await saveToKV(processed);
-        return NextResponse.json({
-          current: processed,
-          source: "ONPE API v1 (direct, fresh)",
-          fresh: true,
-          comprehensive: getComprehensiveElectionData(),
-          corruption: getCorruptionAnalysisData(),
-        });
-      }
-    }
-  } catch (e) {
-    console.log("[api/data] Direct ONPE v1 failed:", (e as Error).message.substring(0, 100));
-  }
-
-  // ============================================================
-  // STEP 2: Try ONPE JSON via proxies
-  // ============================================================
-  for (const proxyUrl of PROXIES(ONPE_JSON)) {
-    try {
-      const res = await fetch(proxyUrl, {
-        next: { revalidate: 60 },
-        cache: "no-store",
-        signal: AbortSignal.timeout(12000),
-      });
-      if (!res.ok) continue;
-      let text = await res.text();
-      if (text.startsWith('{"contents"')) {
-        try { text = JSON.parse(text).contents; } catch { }
-      }
-      const data = JSON.parse(text);
-      if (data?.generals && data?.results) {
-        const processed = processONPEData(data);
-        await saveToKV(processed);
-        return NextResponse.json({
-          current: processed,
-          source: "ONPE JSON (proxy, fresh)",
-          fresh: true,
-          comprehensive: getComprehensiveElectionData(),
-          corruption: getCorruptionAnalysisData(),
-        });
-      }
-    } catch { }
-  }
-
-  // ============================================================
-  // STEP 3: Try KV cache (data pushed by cron jobs)
+  // STEP 1: KV cache first (fastest, always returns data)
   // ============================================================
   try {
     const existing: any = await kv.get("election:current");
@@ -98,7 +33,41 @@ export async function GET() {
   }
 
   // ============================================================
-  // STEP 4: Last resort - return comprehensive data as context
+  // STEP 2: Try direct ONPE (short timeout, background only)
+  // ============================================================
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(ONPE_V1, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "application/json",
+        "Referer": "https://eg2026.onpe.gob.pe/",
+      },
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.generals && data?.results) {
+        const processed = processONPEData(data);
+        await saveToKV(processed);
+        return NextResponse.json({
+          current: processed,
+          source: "ONPE API v1 (direct, fresh)",
+          fresh: true,
+          comprehensive: getComprehensiveElectionData(),
+          corruption: getCorruptionAnalysisData(),
+        });
+      }
+    }
+  } catch (e) {
+    console.log("[api/data] Direct ONPE failed:", (e as Error).message.substring(0, 80));
+  }
+
+  // ============================================================
+  // STEP 3: Last resort - waiting message
   // ============================================================
   return NextResponse.json({
     current: {

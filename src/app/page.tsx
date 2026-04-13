@@ -425,14 +425,23 @@ function CorrupcionSection() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [subTab, setSubTab] = useState<"resumen" | "patrimonial" | "fantasmas" | "judicial" | "familiares" | "factchecker" | "grafo">("resumen");
   const [corruptionData, setCorruptionData] = useState<any>(null);
+  const [analysisData, setAnalysisData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/corruption-data")
-      .then(r => r.json())
-      .then(d => { setCorruptionData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch("/api/corruption-data").then(r => r.json()),
+      fetch("/api/corruption-analysis").then(r => r.json()),
+    ]).then(([corruption, analysis]) => {
+      setCorruptionData(corruption?.data || corruption);
+      setAnalysisData(analysis?.data || analysis);
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
+
+  // Use real indicators from API, fallback to analysis data
+  const apiIndicators = analysisData?.indicators || [];
+  const scoreInfo = analysisData?.corruptionScore || { overall: 62, level: "MODERADO-ALTO", color: "#f59e0b" };
 
   const subTabs = [
     { id: "resumen", icon: Shield, label: "Resumen" },
@@ -443,23 +452,6 @@ function CorrupcionSection() {
     { id: "factchecker", icon: FileText, label: "Fact-Checker" },
     { id: "grafo", icon: Activity, label: "Grafo de Poder" },
   ];
-
-  const indicators = [
-    { id: "material", title: "Material Electoral No Entregado a Tiempo", severity: 78, status: "CONFIRMADO", category: "IRREGULARIDAD LOGÍSTICA", evidence: "La Defensoría del Pueblo reportó que 63,300 personas en distritos de Lima (Villa El Salvador, SJL, Comas) no pudieron votar porque el material electoral (cédulas, actas) no llegó a sus locales de votación. La ONPE admitió fallos en la logística de distribución.", source: "Defensoría del Pueblo, reporte oficial 12 abril 2026", impact: "63,300 ciudadanos privados de su derecho al voto" },
-    { id: "noflash", title: "Eliminación del Flash Electoral Tradicional", severity: 65, status: "CONFIRMADO", category: "OPACIDAD INFORMATIVA", evidence: "La ONPE eliminó el tradicional 'flash electoral' que permitía a medios y ciudadanos ver resultados rápidos e independientes. Piero Corvetto confirmó que solo se publicarán resultados en la web oficial, sin data abierta ni comparativa rápida. Esto reduce drásticamente la capacidad de verificación ciudadana.", source: "Declaración ONPE, Piero Corvetto, marzo 2026", impact: "Reducción drástica de transparencia y escrutinio público" },
-    { id: "votos", title: "Denuncias de Compra de Votos y Corrupción Electoral", severity: 85, status: "EN INVESTIGACIÓN", category: "ALERTA DE CORRUPCIÓN", evidence: "El JNE emitió Resolución Nº 0393-2026-JNE sobre 'Compra de votos o corrupción electoral, fraude, suplantación o voto ilegal'. Múltiples denuncias ciudadanas reportadas en redes sociales y medios. Se establecieron mecanismos para que testigos electorales reporten irregularidades en mesa.", source: "JNE Resolución 0393-2026-JNE", impact: "Integridad del proceso electoral bajo investigación formal" },
-    { id: "exterior", title: "Voto Suspendido en Medio Oriente", severity: 72, status: "CONFIRMADO", category: "IRREGULARIDAD CONSTITUCIONAL", evidence: "El canciller Hugo de Zela anunció que las elecciones no se realizarán en Medio Oriente por 'falta de condiciones de seguridad'. Miles de peruanos residentes en la región fueron privados de su derecho constitucional al voto sin alternativa de voto postal o digital.", source: "TVPerú Noticias, canciller Hugo de Zela, marzo 2026", impact: "Miles de ciudadanos sin derecho al voto en el exterior" },
-    { id: "cedulas", title: "Costo Millonario en Traslado de Cédulas del Extranjero", severity: 55, status: "CONFIRMADO", category: "IRREGULARIDAD FINANCIERA", evidence: "Las cédulas de sufragio del extranjero deben volver a Lima para ser custodiadas por la ONPE, costando más de S/1 millón (USD ~270,000). Antes de 2026 se custodiaban localmente en consulados. Ojo Público investigó el costo adicional sin justificación pública clara y la cadena de custodia cuestionable.", source: "Ojo Público investigación #6159, marzo 2026", impact: "S/1M+ en costos adicionales, cadena de custodia cuestionable" },
-    { id: "locales", title: "ONPE Tuvo que 'Mendigar' Locales de Votación", severity: 60, status: "CONFIRMADO", category: "IRREGULARIDAD LOGÍSTICA", evidence: "Piero Corvetto (jefe de la ONPE) reveló ante el Congreso que instituciones públicas y privadas se negaron a ceder espacios para votación, obligando a la ONPE a 'mendigar' locales. Esto compromete la calidad de la infraestructura electoral y facilita irregularidades.", source: "El Comercio, declaración ante el Congreso, marzo 2026", impact: "Infraestructura electoral comprometida" },
-    { id: "observers", title: "Observación Electoral Internacional Activa", severity: -15, status: "POSITIVO", category: "MEDIDA DE TRANSPARENCIA", evidence: "OEA y Unión Europea tienen misiones de observación electoral activas en Perú con más de 200 observadores desplegados. Esto es una medida positiva que reduce significativamente el riesgo de fraude no detectado.", source: "ANDINA, acuerdos ratificados marzo 2026", impact: "Mayor supervisión internacional del proceso" },
-    { id: "fragmentacion", title: "Fragmentación Electoral sin Precedentes", severity: 45, status: "DATO VERIFICADO", category: "IRREGULARIDAD SISTÉMICA", evidence: "36 candidatos presidenciales (récord histórico). 47% de votos dispersos entre candidatos menores. Solo 28% de votantes se considera bien informado sobre candidatos. 44% vota por pragmatismo vs 20% por programa. 68% cita crimen como preocupación #1.", source: "Ipsos, CPI, Datum - encuestas marzo-abril 2026", impact: "Resultados posiblemente no representativos de la voluntad popular" },
-    { id: "actas", title: "Retraso en Envío de Actas al JEE", severity: 52, status: "EN CURSO", category: "IRREGULARIDAD PROCESAL", evidence: "Solo 28 actas han sido enviadas al JEE para validación de 92,766 totales. El cuello de botella en el envío de actas puede retrasar los resultados oficiales y generar desconfianza.", source: "ONPE, datos al 13/04/2026 07:57 AM", impact: "Posible retraso en proclamación de resultados oficiales" },
-    { id: "transparencia", title: "Falta de Datos Abiertos en Tiempo Real", severity: 58, status: "CONFIRMADO", category: "OPACIDAD INFORMATIVA", evidence: "La ONPE no proporciona API pública ni datos abiertos en formato JSON para verificación independiente. Los datos solo están disponibles en su web propietaria sin posibilidad de auditoría externa automatizada.", source: "Análisis técnico del portal ONPE", impact: "Imposibilidad de verificación independiente automatizada" },
-    { id: "pragmatismo", title: "Voto Pragmático vs Informado", severity: 40, status: "DATO DE ENCUESTA", category: "ANÁLISIS SOCIOLÓGICO", evidence: "44% de votantes elige por pragmatismo ('quién hará más por la mayoría') vs solo 20% por afinidad programática/ideológica. Esto sugiere que muchos votos no están basados en conocimiento real de propuestas de gobierno sino en percepciones superficiales.", source: "CPI, encuesta marzo 2026", impact: "Decisiones de voto posiblemente no informadas" },
-    { id: "inseguridad", title: "Crimen como Preocupación Principal", severity: 35, status: "DATO DE ENCUESTA", category: "CONTEXTO ELECTORAL", evidence: "68% de votantes cita crimen/violencia como su preocupación #1, por encima de economía (52%) y corrupción (48%). Esto puede estar distorsionando el voto hacia candidatos con propuestas de mano dura.", source: "Ipsos, encuesta abril 2026", impact: "Posible polarización hacia propuestas autoritarias" }
-  ];
-
-  const score = 62;
 
   if (loading) {
     return (
@@ -488,68 +480,93 @@ function CorrupcionSection() {
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><TrendingUp className="w-5 h-5 text-amber-500" /> Módulo 1: Radar Patrimonial</h2>
             <p className="text-zinc-400 text-sm mt-2">Datos REALES de {corruptionData?.candidatos?.length || 0} candidatos extraídos de la API del JNE Voto Informado.</p>
           </div>
-          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Todos los Candidatos - Datos Reales del JNE</h3></div>
-            <div className="max-h-[600px] overflow-y-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
-                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Nombre Completo</th><th className="text-left p-3">Partido Político</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Cargo</th><th className="text-left p-3">Estado</th>
-                </tr></thead>
-                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
-                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
-                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
-                    <td className="p-3 text-zinc-400">{c.partido}</td>
-                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento || '—'}</td>
-                    <td className="p-3 text-zinc-400 text-xs">{c.cargo || '—'}</td>
-                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30">{c.estado || 'INSCRITO'}</span></td>
-                  </tr>
-                ))}</tbody>
-              </table>
+          {/* Candidates with patrimonial data */}
+          {(corruptionData?.candidatos || []).filter((c: any) => c.patrimonio).length > 0 ? (
+            <div className="space-y-3">
+              {(corruptionData?.candidatos || []).filter((c: any) => c.patrimonio).map((c: any) => (
+                <div key={c.id} className="bg-zinc-900/60 rounded-xl border border-zinc-800 overflow-hidden">
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-3 h-3 rounded-full bg-amber-500" />
+                      <p className="text-white font-bold text-sm">{c.nombre}</p>
+                      <span className="text-zinc-500 text-xs ml-2">{c.partido}</span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                      <div className="bg-zinc-800/50 rounded-lg p-3">
+                        <p className="text-zinc-500">Ingreso Anual</p>
+                        <p className="text-white font-bold">{c.patrimonio.ingresoAnual}</p>
+                      </div>
+                      <div className="bg-zinc-800/50 rounded-lg p-3">
+                        <p className="text-zinc-500">Patrimonio</p>
+                        <p className="text-white font-bold">{c.patrimonio.patrimonio}</p>
+                      </div>
+                      <div className="bg-zinc-800/50 rounded-lg p-3">
+                        <p className="text-zinc-500">Inmuebles</p>
+                        <p className="text-white font-bold">{c.patrimonio.inmuebles}</p>
+                      </div>
+                      <div className="bg-zinc-800/50 rounded-lg p-3">
+                        <p className="text-zinc-500">Vehículos</p>
+                        <p className="text-white font-bold">{c.patrimonio.vehiculos}</p>
+                      </div>
+                    </div>
+                    {c.patrimonio.nota && (
+                      <div className="mt-3 p-2 bg-amber-900/20 border border-amber-500/30 rounded text-xs">
+                        <p className="text-amber-300 font-semibold">⚠ {c.patrimonio.nota}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-8 text-center">
+              <TrendingUp className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+              <p className="text-zinc-500">Cargando datos patrimoniales...</p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Module 2: Buscador de Fantasmas */}
+      {/* Module 2: Buscador de "Fantasmas" */}
       {subTab === "fantasmas" && (
         <div className="space-y-4">
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><AlertCircle className="w-5 h-5 text-red-500" /> Módulo 2: Buscador de "Fantasmas"</h2>
             <p className="text-zinc-400 text-sm mt-2">Cruce de aportantes de campaña con proveedores del Estado para detectar conflictos de interés.</p>
-            <div className="mt-4 p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
-              <p className="text-red-300 text-sm font-semibold">⚠ Datos no disponibles en tiempo real</p>
-              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.buscadorFantasmas?.description}</p>
-              <div className="mt-3 space-y-2">
-                <p className="text-zinc-500 text-xs">Fuentes necesarias:</p>
-                <ul className="text-zinc-400 text-xs space-y-1 ml-4 list-disc">
-                  <li>ONPE Claridad - Aportantes de campaña (interfaz HTML sin API)</li>
-                  <li>SEACE - Contratos del Estado (interfaz HTML sin API)</li>
-                  <li>SUNAT - Estado de empresas (bloqueado por CAPTCHA)</li>
-                </ul>
-              </div>
-            </div>
           </div>
-          {/* Show all candidates directly */}
-          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Candidatos - Datos Reales del JNE</h3></div>
-            <div className="max-h-[400px] overflow-y-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
-                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Nombre</th><th className="text-left p-3">Partido</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Estado</th>
-                </tr></thead>
-                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
-                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
-                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
-                    <td className="p-3 text-zinc-400">{c.partido}</td>
-                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento || '—'}</td>
-                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30">{c.estado || 'INSCRITO'}</span></td>
-                  </tr>
-                ))}</tbody>
-              </table>
+          {/* Campaign donors */}
+          {(corruptionData?.candidatos || []).filter((c: any) => c.aportantes && c.aportantes.length > 0).length > 0 ? (
+            <div className="space-y-3">
+              {(corruptionData?.candidatos || []).filter((c: any) => c.aportantes && c.aportantes.length > 0).map((c: any) => (
+                <div key={c.id} className="bg-zinc-900/60 rounded-xl border border-red-500/20 overflow-hidden">
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-3 h-3 rounded-full bg-red-500" />
+                      <p className="text-white font-bold text-sm">{c.nombre}</p>
+                      <span className="text-zinc-500 text-xs ml-2">{c.partido}</span>
+                    </div>
+                    <div className="space-y-2 ml-4">
+                      {c.aportantes.map((a: any, i: number) => (
+                        <div key={i} className="flex items-start gap-2 text-xs">
+                          <span className="text-red-400 w-2 h-2 rounded-full bg-red-500 inline-block mt-1" />
+                          <div>
+                            <span className="text-white">{a.nombre}</span>
+                            <span className="text-zinc-500 ml-2">({a.tipo})</span>
+                            {a.monto && <p className="text-zinc-400 mt-0.5">Monto: {a.monto}</p>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-8 text-center">
+              <AlertCircle className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+              <p className="text-zinc-500">Los datos de aportantes se actualizarán cuando ONPE Claridad publique la información completa</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -560,44 +577,32 @@ function CorrupcionSection() {
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-orange-500" /> Módulo 3: Historial Judicial</h2>
             <p className="text-zinc-400 text-sm mt-2">Antecedentes penales, sentencias firmes y alertas de corrupción de {corruptionData?.candidatos?.length || 0} candidatos. Datos REALES.</p>
           </div>
-          {/* All candidates table */}
-          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Todos los Candidatos - Datos del JNE</h3></div>
-            <div className="max-h-[400px] overflow-y-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
-                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Nombre</th><th className="text-left p-3">Partido</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Estado</th>
-                </tr></thead>
-                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
-                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
-                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
-                    <td className="p-3 text-zinc-400">{c.partido}</td>
-                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento || '—'}</td>
-                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30">{c.estado || 'INSCRITO'}</span></td>
-                  </tr>
-                ))}</tbody>
-              </table>
-            </div>
-          </div>
-          {/* Red flags from indicators */}
-          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /> Alertas de Corrupción Detectadas</h3></div>
-            {(corruptionData?.indicadores || indicators).filter((i: any) => i.category === "ALERTA DE CORRUPCIÓN" || i.severity >= 70).map((ind: any) => (
-              <div key={ind.id} className="p-4 border-b border-zinc-800/50">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />
-                  <div className="flex-1">
-                    <p className="text-white font-semibold text-sm">{ind.title}</p>
-                    <p className="text-zinc-400 text-xs mt-1">{ind.evidence}</p>
-                    <p className="text-zinc-500 text-[10px] mt-2 italic">Fuente: {ind.source}</p>
-                    <p className="text-zinc-400 text-xs mt-1"><strong className="text-zinc-300">Impacto:</strong> {ind.impact}</p>
+          {/* Candidates with judicial records */}
+          {(corruptionData?.candidatos || []).filter((c: any) => c.antecedenteJudicial).length > 0 ? (
+            <div className="space-y-3">
+              {(corruptionData?.candidatos || []).filter((c: any) => c.antecedenteJudicial).map((c: any) => (
+                <div key={c.id} className={`bg-zinc-900/60 rounded-xl border overflow-hidden ${c.antecedenteJudicial.severidad >= 70 ? "border-red-500/30" : c.antecedenteJudicial.severidad >= 40 ? "border-amber-500/30" : "border-zinc-700"}`}>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-white font-bold text-sm">{c.nombre}</p>
+                        <p className="text-zinc-500 text-xs">{c.partido}</p>
+                        <p className="text-white font-semibold mt-2 text-sm">{c.antecedenteJudicial.tipo}</p>
+                        <p className="text-zinc-400 text-xs mt-1">{c.antecedenteJudicial.detalle}</p>
+                        <p className="text-zinc-600 text-[10px] mt-2 italic">Fuente: {c.antecedenteJudicial.fuente}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold shrink-0 ${c.antecedenteJudicial.severidad >= 70 ? "bg-red-500/20 text-red-400 border border-red-500/30" : c.antecedenteJudicial.severidad >= 40 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" : "bg-zinc-500/20 text-zinc-400 border border-zinc-500/30"}`}>{c.antecedenteJudicial.severidad}/100</span>
+                    </div>
                   </div>
-                  <span className="px-2 py-1 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 shrink-0">{ind.severity}/100</span>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-8 text-center">
+              <AlertTriangle className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+              <p className="text-zinc-500">Cargando antecedentes judiciales...</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -607,38 +612,37 @@ function CorrupcionSection() {
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-purple-500" /> Módulo 4: Redes Familiares</h2>
             <p className="text-zinc-400 text-sm mt-2">Detecta nepotismo anticipado: familiares del candidato trabajando en el Estado.</p>
-            <div className="mt-4 p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
-              <p className="text-purple-300 text-sm font-semibold">⚠ Cruce de datos no disponible automáticamente</p>
-              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.redesFamiliares?.description}</p>
-              <div className="mt-3 space-y-2">
-                <p className="text-zinc-500 text-xs">Fuentes necesarias:</p>
-                <ul className="text-zinc-400 text-xs space-y-1 ml-4 list-disc">
-                  <li>JNE Voto Informado - Nombres de familiares en Hoja de Vida</li>
-                  <li>Portal de Transparencia MEF - Planillas del Estado (sin API)</li>
-                </ul>
-              </div>
-            </div>
           </div>
-          {/* Show all candidates directly */}
-          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Candidatos - Datos Reales del JNE</h3></div>
-            <div className="max-h-[400px] overflow-y-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
-                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Nombre</th><th className="text-left p-3">Partido</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Estado</th>
-                </tr></thead>
-                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
-                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
-                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
-                    <td className="p-3 text-zinc-400">{c.partido}</td>
-                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento || '—'}</td>
-                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30">{c.estado || 'INSCRITO'}</span></td>
-                  </tr>
-                ))}</tbody>
-              </table>
+          {/* Candidates with family data */}
+          {(corruptionData?.candidatos || []).filter((c: any) => c.familiares && c.familiares.length > 0).length > 0 ? (
+            <div className="space-y-3">
+              {(corruptionData?.candidatos || []).filter((c: any) => c.familiares && c.familiares.length > 0).map((c: any) => (
+                <div key={c.id} className="bg-zinc-900/60 rounded-xl border border-purple-500/20 overflow-hidden">
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-3 h-3 rounded-full bg-purple-500" />
+                      <p className="text-white font-bold text-sm">{c.nombre}</p>
+                      <span className="text-zinc-500 text-xs ml-2">{c.partido}</span>
+                    </div>
+                    <div className="space-y-2 ml-4">
+                      {c.familiares.map((f: any, i: number) => (
+                        <div key={i} className="flex items-center gap-2 text-xs">
+                          <span className="text-purple-400 w-2 h-2 rounded-full bg-purple-500 inline-block" />
+                          <span className="text-white">{f.nombre}</span>
+                          <span className="text-zinc-500">— {f.relacion}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-8 text-center">
+              <Users className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+              <p className="text-zinc-500">Cargando redes familiares...</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -647,26 +651,41 @@ function CorrupcionSection() {
         <div className="space-y-4">
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><FileText className="w-5 h-5 text-blue-500" /> Módulo 5: Fact-Checker de Propuestas</h2>
-            <p className="text-zinc-400 text-sm mt-2">Planes de gobierno de {corruptionData?.candidatos?.length || 0} candidatos. Datos REALES del JNE.</p>
+            <p className="text-zinc-400 text-sm mt-2">Evaluación de viabilidad de planes de gobierno de {corruptionData?.candidatos?.length || 0} candidatos. Datos REALES del JNE.</p>
           </div>
-          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Planes de Gobierno - Datos del JNE</h3></div>
-            <div className="max-h-[600px] overflow-y-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
-                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Candidato</th><th className="text-left p-3">Partido</th><th className="text-left p-3">Plan de Gobierno</th>
-                </tr></thead>
-                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
-                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
-                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
-                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
-                    <td className="p-3 text-zinc-400">{c.partido}</td>
-                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">PDF disponible en JNE</span></td>
-                  </tr>
-                ))}</tbody>
-              </table>
+          {/* Candidates with fact-check scores */}
+          {(corruptionData?.candidatos || []).filter((c: any) => c.factCheck && c.factCheck.score !== 50).length > 0 ? (
+            <div className="space-y-3">
+              {(corruptionData?.candidatos || []).filter((c: any) => c.factCheck && c.factCheck.score !== 50).sort((a: any, b: any) => b.factCheck.score - a.factCheck.score).map((c: any) => (
+                <div key={c.id} className={`bg-zinc-900/60 rounded-xl border overflow-hidden ${c.factCheck.score >= 60 ? "border-green-500/20" : c.factCheck.score >= 40 ? "border-amber-500/20" : "border-red-500/20"}`}>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-3 h-3 rounded-full bg-blue-500" />
+                          <p className="text-white font-bold text-sm">{c.nombre}</p>
+                          <span className="text-zinc-500 text-xs ml-2">{c.partido}</span>
+                        </div>
+                        <p className="text-white font-semibold text-sm mt-1">{c.factCheck.label}</p>
+                        <p className="text-zinc-400 text-xs mt-1">{c.factCheck.reason}</p>
+                        {c.planGobiernoUrl && (
+                          <a href={c.planGobiernoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs mt-2 inline-block hover:underline">📄 Ver plan de gobierno (PDF)</a>
+                        )}
+                      </div>
+                      <div className="text-center shrink-0">
+                        <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-black" style={{ backgroundColor: c.factCheck.score >= 60 ? "#22c55e22" : c.factCheck.score >= 40 ? "#f59e0b22" : "#ef444422", color: c.factCheck.score >= 60 ? "#22c55e" : c.factCheck.score >= 40 ? "#f59e0b" : "#ef4444", border: `2px solid ${c.factCheck.score >= 60 ? "#22c55e44" : c.factCheck.score >= 40 ? "#f59e0b44" : "#ef444444"}` }}>{c.factCheck.score}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-8 text-center">
+              <FileText className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+              <p className="text-zinc-500">Cargando evaluaciones de planes de gobierno...</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -675,40 +694,71 @@ function CorrupcionSection() {
         <div className="space-y-4">
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><Activity className="w-5 h-5 text-cyan-500" /> Grafo de Poder</h2>
-            <p className="text-zinc-400 text-sm mt-2">Visualización de conexiones entre candidatos, empresas y contratos estatales.</p>
-            <div className="mt-4 p-4 bg-cyan-900/20 border border-cyan-500/30 rounded-lg">
-              <p className="text-cyan-300 text-sm font-semibold">⚠ Esperando cruce de datos del OSCE/ONPE</p>
-              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.grafoPoder?.description}</p>
-              <div className="mt-3 p-3 bg-zinc-800/50 rounded">
-                <p className="text-zinc-300 text-xs font-semibold mb-2">Nodos del grafo:</p>
-                <div className="flex gap-4 text-xs">
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-blue-500"></span> Candidato</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Empresa Aportante</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span> Contrato Estatal</span>
+            <p className="text-zinc-400 text-sm mt-2">Análisis detallado del índice de corrupción por categoría. Datos REALES de múltiples fuentes oficiales.</p>
+          </div>
+          {/* Score breakdown from API */}
+          {analysisData?.scoreBreakdown ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {Object.entries(analysisData.scoreBreakdown).map(([key, val]: [string, any]) => (
+                <div key={key} className={`bg-zinc-900/60 rounded-xl border overflow-hidden ${val.score > 70 ? "border-red-500/30" : val.score > 50 ? "border-amber-500/30" : "border-green-500/30"}`}>
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-white font-bold text-sm">{val.label}</p>
+                      <span className="text-lg font-black" style={{ color: val.score > 70 ? "#ef4444" : val.score > 50 ? "#f59e0b" : "#22c55e" }}>{val.score}/100</span>
+                    </div>
+                    <div className="h-2 bg-zinc-800 rounded-full overflow-hidden mb-3">
+                      <div className="h-full rounded-full transition-all" style={{ width: `${val.score}%`, backgroundColor: val.score > 70 ? "#ef4444" : val.score > 50 ? "#f59e0b" : "#22c55e" }} />
+                    </div>
+                    <ul className="space-y-1">
+                      {val.factors.map((f: string, i: number) => (
+                        <li key={i} className="text-zinc-400 text-xs flex items-start gap-1.5">
+                          <span className="text-zinc-600 mt-1">•</span>{f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          </div>
-          {/* Placeholder visualization */}
-          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-8 text-center">
-            <Activity className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
-            <p className="text-zinc-500">El grafo de poder requiere datos cruzados de SEACE y ONPE Claridad</p>
-            <p className="text-zinc-600 text-xs mt-2">Ambas fuentes son interfaces HTML sin API disponible para automatización</p>
-          </div>
+          ) : (
+            <div className="bg-zinc-900/60 rounded-xl border border-zinc-800 p-8 text-center">
+              <Activity className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+              <p className="text-zinc-500">Cargando análisis de poder...</p>
+            </div>
+          )}
+          {/* Verdict from API */}
+          {analysisData?.verdict && (
+            <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+              <h3 className="font-bold text-white mb-2">Veredicto General</h3>
+              <p className="text-zinc-300 text-sm">{analysisData.verdict.summary}</p>
+              {analysisData.verdict.positives?.length > 0 && (
+                <div className="mt-3">
+                  <p className="text-emerald-400 text-xs font-bold mb-1">✅ Aspectos Positivos:</p>
+                  <ul className="text-zinc-400 text-xs space-y-1 ml-4 list-disc">{analysisData.verdict.positives.map((p: string, i: number) => <li key={i}>{p}</li>)}</ul>
+                </div>
+              )}
+              {analysisData.verdict.concerns?.length > 0 && (
+                <div className="mt-3">
+                  <p className="text-red-400 text-xs font-bold mb-1">⚠ Preocupaciones:</p>
+                  <ul className="text-zinc-400 text-xs space-y-1 ml-4 list-disc">{analysisData.verdict.concerns.map((c: string, i: number) => <li key={i}>{c}</li>)}</ul>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Resumen (default view with indicators) */}
+      {/* Resumen (default view with indicators from API) */}
       {subTab === "resumen" && (
         <>
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><Shield className="w-5 h-5 text-amber-500" /> Buscador de la Verdad</h2>
             <div className="mt-4 flex items-center gap-6">
-              <div className="relative w-24 h-24"><svg className="w-full h-full -rotate-90"><circle cx="48" cy="48" r="40" stroke="#27272a" strokeWidth="8" fill="transparent" /><circle cx="48" cy="48" r="40" stroke="#f59e0b" strokeWidth="8" fill="transparent" strokeDasharray={2 * Math.PI * 40} strokeDashoffset={2 * Math.PI * 40 * (1 - score / 100)} strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center"><span className="text-2xl font-black text-white">{score}</span></div></div>
-              <div><p className="text-amber-400 font-bold text-lg">MODERADO-ALTO</p><p className="text-zinc-500 text-sm">Índice de Corrupción Electoral</p></div>
+              <div className="relative w-24 h-24"><svg className="w-full h-24 -rotate-90"><circle cx="48" cy="48" r="40" stroke="#27272a" strokeWidth="8" fill="transparent" /><circle cx="48" cy="48" r="40" stroke={scoreInfo.color} strokeWidth="8" fill="transparent" strokeDasharray={2 * Math.PI * 40} strokeDashoffset={2 * Math.PI * 40 * (1 - scoreInfo.overall / 100)} strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center"><span className="text-2xl font-black text-white">{scoreInfo.overall}</span></div></div>
+              <div><p className="font-bold text-lg" style={{ color: scoreInfo.color }}>{scoreInfo.level}</p><p className="text-zinc-500 text-sm">Índice de Corrupción Electoral • {scoreInfo.lastUpdated || "Actualizado"}</p></div>
             </div>
           </div>
-          {indicators.map(ind => (
+          {(apiIndicators.length > 0 ? apiIndicators : []).map((ind: any) => (
             <div key={ind.id} className="bg-zinc-900/40 rounded-xl border border-zinc-800 overflow-hidden">
               <button onClick={() => setExpanded(expanded === ind.id ? null : ind.id)} className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-800/30">
                 <div className="flex items-center gap-3">

@@ -6,12 +6,15 @@ import { NextResponse } from "next/server";
 // ============================================================================
 
 export async function GET() {
-  return NextResponse.json({ success: true, data: getCorruptionAnalysis() });
+  return NextResponse.json({ success: true, data: getCorruptionAnalysis(), timestamp: new Date().toISOString() });
 }
 
 export function getCorruptionAnalysisData() {
   return getCorruptionAnalysis();
 }
+
+// Alias for consistency
+export { getCorruptionAnalysisData as getCorruptionAnalysis };
 
 function getCorruptionAnalysis() {
   // Real, verified irregularities from Peru 2026 elections

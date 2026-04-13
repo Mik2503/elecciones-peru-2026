@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { kv } from "@vercel/kv";
+import { getCorruptionAnalysis } from "../corruption-analysis/route";
 
 // ============================================================================
 // CORRUPTION DATA API - ALL REAL DATA from JNE and verified sources
@@ -284,7 +285,9 @@ export async function GET() {
     totalPDFs: Object.keys(PLANES_GOBIERNO).length,
     totalJudicialRecords: Object.keys(ANTECEDENTES_JUDICIALES).length,
     totalPatrimonialRecords: Object.keys(DATOS_PATRIMONIALES).length,
-    totalFamilyRecords: Object.keys(FAMILIARES).length
+    totalFamilyRecords: Object.keys(FAMILIARES).length,
+    // Include corruption analysis indicators and score
+    corruptionAnalysis: getCorruptionAnalysis()
   });
 }
 

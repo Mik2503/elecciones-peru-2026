@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LineChart, Line } from "recharts";
-import { TrendingUp, Users, FileText, AlertCircle, RefreshCcw, CheckCircle2, MapPin, Shield, Activity, Clock, Vote, Landmark, Building2 } from "lucide-react";
+import { TrendingUp, Users, FileText, AlertCircle, AlertTriangle, RefreshCcw, CheckCircle2, MapPin, Shield, Activity, Clock, Vote, Landmark, Building2 } from "lucide-react";
 
 const fmt = (n: number) => n?.toLocaleString("es-PE") || "0";
 const fmtM = (n: number) => n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(0) + "K" : "0";
@@ -423,6 +423,27 @@ function ActasSection({ data }: { data: Record<string, { total: number; percent:
 
 function CorrupcionSection() {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [subTab, setSubTab] = useState<"resumen" | "patrimonial" | "fantasmas" | "judicial" | "familiares" | "factchecker" | "grafo">("resumen");
+  const [corruptionData, setCorruptionData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/corruption-data")
+      .then(r => r.json())
+      .then(d => { setCorruptionData(d.data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const subTabs = [
+    { id: "resumen", icon: Shield, label: "Resumen" },
+    { id: "patrimonial", icon: TrendingUp, label: "Radar Patrimonial" },
+    { id: "fantasmas", icon: AlertCircle, label: "Fantasmas" },
+    { id: "judicial", icon: AlertTriangle, label: "Historial Judicial" },
+    { id: "familiares", icon: Users, label: "Redes Familiares" },
+    { id: "factchecker", icon: FileText, label: "Fact-Checker" },
+    { id: "grafo", icon: Activity, label: "Grafo de Poder" },
+  ];
+
   const indicators = [
     { id: "material", title: "Material Electoral No Entregado a Tiempo", severity: 78, status: "CONFIRMADO", category: "IRREGULARIDAD LOGÍSTICA", evidence: "La Defensoría del Pueblo reportó que 63,300 personas en distritos de Lima (Villa El Salvador, SJL, Comas) no pudieron votar porque el material electoral (cédulas, actas) no llegó a sus locales de votación. La ONPE admitió fallos en la logística de distribución.", source: "Defensoría del Pueblo, reporte oficial 12 abril 2026", impact: "63,300 ciudadanos privados de su derecho al voto" },
     { id: "noflash", title: "Eliminación del Flash Electoral Tradicional", severity: 65, status: "CONFIRMADO", category: "OPACIDAD INFORMATIVA", evidence: "La ONPE eliminó el tradicional 'flash electoral' que permitía a medios y ciudadanos ver resultados rápidos e independientes. Piero Corvetto confirmó que solo se publicarán resultados en la web oficial, sin data abierta ni comparativa rápida. Esto reduce drásticamente la capacidad de verificación ciudadana.", source: "Declaración ONPE, Piero Corvetto, marzo 2026", impact: "Reducción drástica de transparencia y escrutinio público" },
@@ -437,37 +458,247 @@ function CorrupcionSection() {
     { id: "pragmatismo", title: "Voto Pragmático vs Informado", severity: 40, status: "DATO DE ENCUESTA", category: "ANÁLISIS SOCIOLÓGICO", evidence: "44% de votantes elige por pragmatismo ('quién hará más por la mayoría') vs solo 20% por afinidad programática/ideológica. Esto sugiere que muchos votos no están basados en conocimiento real de propuestas de gobierno sino en percepciones superficiales.", source: "CPI, encuesta marzo 2026", impact: "Decisiones de voto posiblemente no informadas" },
     { id: "inseguridad", title: "Crimen como Preocupación Principal", severity: 35, status: "DATO DE ENCUESTA", category: "CONTEXTO ELECTORAL", evidence: "68% de votantes cita crimen/violencia como su preocupación #1, por encima de economía (52%) y corrupción (48%). Esto puede estar distorsionando el voto hacia candidatos con propuestas de mano dura.", source: "Ipsos, encuesta abril 2026", impact: "Posible polarización hacia propuestas autoritarias" }
   ];
+
   const score = 62;
+
+  if (loading) {
+    return (
+      <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-8 text-center">
+        <RefreshCcw className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-3" />
+        <p className="text-zinc-400">Cargando datos de corrupción...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2"><Shield className="w-5 h-5 text-amber-500" /> Buscador de la Verdad</h2>
-        <div className="mt-4 flex items-center gap-6">
-          <div className="relative w-24 h-24"><svg className="w-full h-full -rotate-90"><circle cx="48" cy="48" r="40" stroke="#27272a" strokeWidth="8" fill="transparent" /><circle cx="48" cy="48" r="40" stroke="#f59e0b" strokeWidth="8" fill="transparent" strokeDasharray={2 * Math.PI * 40} strokeDashoffset={2 * Math.PI * 40 * (1 - score / 100)} strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center"><span className="text-2xl font-black text-white">{score}</span></div></div>
-          <div><p className="text-amber-400 font-bold text-lg">MODERADO-ALTO</p><p className="text-zinc-500 text-sm">Índice de Corrupción Electoral</p></div>
-        </div>
-      </div>
-      {indicators.map(ind => (
-        <div key={ind.id} className="bg-zinc-900/40 rounded-xl border border-zinc-800 overflow-hidden">
-          <button onClick={() => setExpanded(expanded === ind.id ? null : ind.id)} className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-800/30">
-            <div className="flex items-center gap-3">
-              {ind.severity > 0 ? <AlertCircle className="w-4 h-4 text-red-400" /> : <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-              <div><p className="font-semibold text-white text-sm">{ind.title}</p><p className="text-[10px] text-zinc-500">{ind.category} • {ind.status}</p></div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${ind.severity > 70 ? "bg-red-500/20 text-red-400 border-red-500/30" : ind.severity > 0 ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"}`}>{ind.severity > 0 ? `${ind.severity}/100` : `+${Math.abs(ind.severity)}`}</span>
-              <span className="text-zinc-500 text-xs">{expanded === ind.id ? "▲" : "▼"}</span>
-            </div>
+      {/* Sub-tab navigation */}
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {subTabs.map(t => (
+          <button key={t.id} onClick={() => setSubTab(t.id as any)} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${subTab === t.id ? "bg-red-600 text-white shadow-lg" : "bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"}`}>
+            <t.icon className="w-4 h-4" />{t.label}
           </button>
-          {expanded === ind.id && (
-            <div className="p-4 border-t border-zinc-800 space-y-3 bg-zinc-900/60">
-              <p className="text-zinc-300 text-sm leading-relaxed">{ind.evidence}</p>
-              <div className="flex items-start gap-2"><AlertCircle className="w-3 h-3 text-amber-400 mt-0.5 shrink-0" /><p className="text-zinc-400 text-xs"><strong className="text-zinc-300">Impacto:</strong> {ind.impact}</p></div>
-              <p className="text-zinc-500 text-xs italic">Fuente: {ind.source}</p>
+        ))}
+      </div>
+
+      {/* Module 1: Radar Patrimonial */}
+      {subTab === "patrimonial" && (
+        <div className="space-y-4">
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2"><TrendingUp className="w-5 h-5 text-amber-500" /> Módulo 1: Radar Patrimonial</h2>
+            <p className="text-zinc-400 text-sm mt-2">Detecta enriquecimiento ilícito comparando declaraciones patrimoniales a lo largo del tiempo.</p>
+            <div className="mt-4 p-4 bg-amber-900/20 border border-amber-500/30 rounded-lg">
+              <p className="text-amber-300 text-sm font-semibold">Fuente de datos: JNE Voto Informado - Hoja de Vida</p>
+              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.radarPatrimonial?.description}</p>
+              <a href={corruptionData?.moduleStatus?.radarPatrimonial?.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs mt-2 inline-block hover:underline">→ Ver en JNE Voto Informado</a>
             </div>
-          )}
+          </div>
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Candidatos - Hoja de Vida (Datos reales del JNE)</h3></div>
+            <div className="max-h-96 overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
+                  <th className="text-left p-3">Candidato</th><th className="text-left p-3">Partido</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Acción</th>
+                </tr></thead>
+                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
+                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
+                    <td className="p-3 text-zinc-400">{c.partido}</td>
+                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento}</td>
+                    <td className="p-3"><a href={c.hojaVidaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs hover:underline">Ver Hoja de Vida →</a></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      ))}
+      )}
+
+      {/* Module 2: Buscador de Fantasmas */}
+      {subTab === "fantasmas" && (
+        <div className="space-y-4">
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2"><AlertCircle className="w-5 h-5 text-red-500" /> Módulo 2: Buscador de "Fantasmas"</h2>
+            <p className="text-zinc-400 text-sm mt-2">Cruce de aportantes de campaña con proveedores del Estado para detectar conflictos de interés.</p>
+            <div className="mt-4 p-4 bg-red-900/20 border border-red-500/30 rounded-lg">
+              <p className="text-red-300 text-sm font-semibold">⚠ Datos no disponibles en tiempo real</p>
+              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.buscadorFantasmas?.description}</p>
+              <div className="mt-3 space-y-2">
+                <p className="text-zinc-500 text-xs">Fuentes necesarias:</p>
+                <ul className="text-zinc-400 text-xs space-y-1 ml-4 list-disc">
+                  <li>ONPE Claridad - Aportantes de campaña (interfaz HTML)</li>
+                  <li>SEACE - Contratos del Estado (interfaz HTML)</li>
+                  <li>SUNAT - Estado de empresas (bloqueado por CAPTCHA)</li>
+                </ul>
+              </div>
+              <a href={corruptionData?.moduleStatus?.buscadorFantasmas?.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs mt-3 inline-block hover:underline">→ Ir a ONPE Claridad</a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Module 3: Historial Judicial */}
+      {subTab === "judicial" && (
+        <div className="space-y-4">
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-orange-500" /> Módulo 3: Historial Judicial</h2>
+            <p className="text-zinc-400 text-sm mt-2">Antecedentes penales, sentencias firmes y demandas declaradas por cada candidato.</p>
+            <div className="mt-4 p-4 bg-orange-900/20 border border-orange-500/30 rounded-lg">
+              <p className="text-orange-300 text-sm font-semibold">Fuente: JNE Voto Informado - Antecedentes declarados en Hoja de Vida</p>
+              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.historialJudicial?.description}</p>
+              <div className="mt-3 p-3 bg-zinc-800/50 rounded">
+                <p className="text-zinc-300 text-xs font-semibold mb-2">Semáforo de riesgo (basado en antecedentes declarados):</p>
+                <div className="flex gap-4 text-xs">
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span> Sentencia firme</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Investigación en curso</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500"></span> Sin antecedentes declarados</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Red flags from indicators */}
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Alertas Judiciales Detectadas</h3></div>
+            {indicators.filter(i => i.category === "ALERTA DE CORRUPCIÓN" || i.severity >= 70).map(ind => (
+              <div key={ind.id} className="p-4 border-b border-zinc-800/50">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-white font-semibold text-sm">{ind.title}</p>
+                    <p className="text-zinc-400 text-xs mt-1">{ind.evidence}</p>
+                    <p className="text-zinc-500 text-[10px] mt-2 italic">Fuente: {ind.source}</p>
+                  </div>
+                  <span className="px-2 py-1 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 shrink-0">{ind.severity}/100</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Module 4: Redes Familiares */}
+      {subTab === "familiares" && (
+        <div className="space-y-4">
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2"><Users className="w-5 h-5 text-purple-500" /> Módulo 4: Redes Familiares</h2>
+            <p className="text-zinc-400 text-sm mt-2">Detecta nepotismo anticipado: familiares del candidato trabajando en el Estado.</p>
+            <div className="mt-4 p-4 bg-purple-900/20 border border-purple-500/30 rounded-lg">
+              <p className="text-purple-300 text-sm font-semibold">⚠ Cruce de datos no disponible automáticamente</p>
+              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.redesFamiliares?.description}</p>
+              <div className="mt-3 space-y-2">
+                <p className="text-zinc-500 text-xs">Fuentes necesarias:</p>
+                <ul className="text-zinc-400 text-xs space-y-1 ml-4 list-disc">
+                  <li>JNE Voto Informado - Nombres de familiares en Hoja de Vida</li>
+                  <li>Portal de Transparencia MEF - Planillas del Estado</li>
+                </ul>
+              </div>
+              <a href={corruptionData?.moduleStatus?.redesFamiliares?.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs mt-3 inline-block hover:underline">→ Ir a Portal de Transparencia</a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Module 5: Fact-Checker */}
+      {subTab === "factchecker" && (
+        <div className="space-y-4">
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2"><FileText className="w-5 h-5 text-blue-500" /> Módulo 5: Fact-Checker de Propuestas</h2>
+            <p className="text-zinc-400 text-sm mt-2">Verifica promesas de campaña contra presupuesto real y datos del MEF.</p>
+            <div className="mt-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+              <p className="text-blue-300 text-sm font-semibold">Fuente: Planes de Gobierno del JNE (PDFs)</p>
+              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.factChecker?.description}</p>
+              <div className="mt-3 p-3 bg-zinc-800/50 rounded">
+                <p className="text-zinc-300 text-xs font-semibold mb-2">Categorías de verificación:</p>
+                <div className="flex gap-4 text-xs">
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500"></span> Verdadero</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span> Falso</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Imposible</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-zinc-500"></span> Sin verificar</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Planes de Gobierno Disponibles (JNE)</h3></div>
+            <div className="max-h-96 overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
+                  <th className="text-left p-3">Candidato</th><th className="text-left p-3">Partido</th><th className="text-left p-3">Plan de Gobierno</th>
+                </tr></thead>
+                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
+                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
+                    <td className="p-3 text-zinc-400">{c.partido}</td>
+                    <td className="p-3"><a href={c.planGobiernoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs hover:underline">Ver Plan →</a></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Module 6: Grafo de Poder */}
+      {subTab === "grafo" && (
+        <div className="space-y-4">
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2"><Activity className="w-5 h-5 text-cyan-500" /> Grafo de Poder</h2>
+            <p className="text-zinc-400 text-sm mt-2">Visualización de conexiones entre candidatos, empresas y contratos estatales.</p>
+            <div className="mt-4 p-4 bg-cyan-900/20 border border-cyan-500/30 rounded-lg">
+              <p className="text-cyan-300 text-sm font-semibold">⚠ Esperando cruce de datos del OSCE/ONPE</p>
+              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.grafoPoder?.description}</p>
+              <div className="mt-3 p-3 bg-zinc-800/50 rounded">
+                <p className="text-zinc-300 text-xs font-semibold mb-2">Nodos del grafo:</p>
+                <div className="flex gap-4 text-xs">
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-blue-500"></span> Candidato</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Empresa Aportante</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span> Contrato Estatal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Placeholder visualization */}
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-8 text-center">
+            <Activity className="w-16 h-16 text-zinc-700 mx-auto mb-4" />
+            <p className="text-zinc-500">El grafo de poder requiere datos cruzados de SEACE y ONPE Claridad</p>
+            <p className="text-zinc-600 text-xs mt-2">Ambas fuentes son interfaces HTML sin API disponible para automatización</p>
+          </div>
+        </div>
+      )}
+
+      {/* Resumen (default view with indicators) */}
+      {subTab === "resumen" && (
+        <>
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2"><Shield className="w-5 h-5 text-amber-500" /> Buscador de la Verdad</h2>
+            <div className="mt-4 flex items-center gap-6">
+              <div className="relative w-24 h-24"><svg className="w-full h-full -rotate-90"><circle cx="48" cy="48" r="40" stroke="#27272a" strokeWidth="8" fill="transparent" /><circle cx="48" cy="48" r="40" stroke="#f59e0b" strokeWidth="8" fill="transparent" strokeDasharray={2 * Math.PI * 40} strokeDashoffset={2 * Math.PI * 40 * (1 - score / 100)} strokeLinecap="round" /></svg><div className="absolute inset-0 flex items-center justify-center"><span className="text-2xl font-black text-white">{score}</span></div></div>
+              <div><p className="text-amber-400 font-bold text-lg">MODERADO-ALTO</p><p className="text-zinc-500 text-sm">Índice de Corrupción Electoral</p></div>
+            </div>
+          </div>
+          {indicators.map(ind => (
+            <div key={ind.id} className="bg-zinc-900/40 rounded-xl border border-zinc-800 overflow-hidden">
+              <button onClick={() => setExpanded(expanded === ind.id ? null : ind.id)} className="w-full p-4 flex items-center justify-between text-left hover:bg-zinc-800/30">
+                <div className="flex items-center gap-3">
+                  {ind.severity > 0 ? <AlertCircle className="w-4 h-4 text-red-400" /> : <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                  <div><p className="font-semibold text-white text-sm">{ind.title}</p><p className="text-[10px] text-zinc-500">{ind.category} • {ind.status}</p></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${ind.severity > 70 ? "bg-red-500/20 text-red-400 border-red-500/30" : ind.severity > 0 ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"}`}>{ind.severity > 0 ? `${ind.severity}/100` : `+${Math.abs(ind.severity)}`}</span>
+                  <span className="text-zinc-500 text-xs">{expanded === ind.id ? "▲" : "▼"}</span>
+                </div>
+              </button>
+              {expanded === ind.id && (
+                <div className="p-4 border-t border-zinc-800 space-y-3 bg-zinc-900/60">
+                  <p className="text-zinc-300 text-sm leading-relaxed">{ind.evidence}</p>
+                  <div className="flex items-start gap-2"><AlertCircle className="w-3 h-3 text-amber-400 mt-0.5 shrink-0" /><p className="text-zinc-400 text-xs"><strong className="text-zinc-300">Impacto:</strong> {ind.impact}</p></div>
+                  <p className="text-zinc-500 text-xs italic">Fuente: {ind.source}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 }

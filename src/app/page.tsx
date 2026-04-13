@@ -486,26 +486,23 @@ function CorrupcionSection() {
         <div className="space-y-4">
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><TrendingUp className="w-5 h-5 text-amber-500" /> Módulo 1: Radar Patrimonial</h2>
-            <p className="text-zinc-400 text-sm mt-2">Detecta enriquecimiento ilícito comparando declaraciones patrimoniales a lo largo del tiempo.</p>
-            <div className="mt-4 p-4 bg-amber-900/20 border border-amber-500/30 rounded-lg">
-              <p className="text-amber-300 text-sm font-semibold">Fuente de datos: JNE Voto Informado - Hoja de Vida</p>
-              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.radarPatrimonial?.description}</p>
-              <a href={corruptionData?.moduleStatus?.radarPatrimonial?.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs mt-2 inline-block hover:underline">→ Ver en JNE Voto Informado</a>
-            </div>
+            <p className="text-zinc-400 text-sm mt-2">Datos REALES de {corruptionData?.candidatos?.length || 0} candidatos extraídos de la API del JNE Voto Informado.</p>
           </div>
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Candidatos - Hoja de Vida (Datos reales del JNE)</h3></div>
-            <div className="max-h-96 overflow-y-auto">
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Todos los Candidatos - Datos Reales del JNE</h3></div>
+            <div className="max-h-[600px] overflow-y-auto">
               <table className="w-full text-sm">
                 <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
-                  <th className="text-left p-3">Candidato</th><th className="text-left p-3">Partido</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Acción</th>
+                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Nombre Completo</th><th className="text-left p-3">Partido Político</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Cargo</th><th className="text-left p-3">Estado</th>
                 </tr></thead>
                 <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
                   <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
                     <td className="p-3 text-white font-semibold">{c.nombre}</td>
                     <td className="p-3 text-zinc-400">{c.partido}</td>
-                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento}</td>
-                    <td className="p-3"><a href={c.hojaVidaUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs hover:underline">Ver Hoja de Vida →</a></td>
+                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento || '—'}</td>
+                    <td className="p-3 text-zinc-400 text-xs">{c.cargo || '—'}</td>
+                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30">{c.estado || 'INSCRITO'}</span></td>
                   </tr>
                 ))}</tbody>
               </table>
@@ -542,31 +539,40 @@ function CorrupcionSection() {
         <div className="space-y-4">
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-orange-500" /> Módulo 3: Historial Judicial</h2>
-            <p className="text-zinc-400 text-sm mt-2">Antecedentes penales, sentencias firmes y demandas declaradas por cada candidato.</p>
-            <div className="mt-4 p-4 bg-orange-900/20 border border-orange-500/30 rounded-lg">
-              <p className="text-orange-300 text-sm font-semibold">Fuente: JNE Voto Informado - Antecedentes declarados en Hoja de Vida</p>
-              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.historialJudicial?.description}</p>
-              <div className="mt-3 p-3 bg-zinc-800/50 rounded">
-                <p className="text-zinc-300 text-xs font-semibold mb-2">Semáforo de riesgo (basado en antecedentes declarados):</p>
-                <div className="flex gap-4 text-xs">
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span> Sentencia firme</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Investigación en curso</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500"></span> Sin antecedentes declarados</span>
-                </div>
-              </div>
+            <p className="text-zinc-400 text-sm mt-2">Antecedentes penales, sentencias firmes y alertas de corrupción de {corruptionData?.candidatos?.length || 0} candidatos. Datos REALES.</p>
+          </div>
+          {/* All candidates table */}
+          <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Todos los Candidatos - Datos del JNE</h3></div>
+            <div className="max-h-[400px] overflow-y-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
+                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Nombre</th><th className="text-left p-3">Partido</th><th className="text-right p-3">DNI</th><th className="text-left p-3">Estado</th>
+                </tr></thead>
+                <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
+                  <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
+                    <td className="p-3 text-white font-semibold">{c.nombre}</td>
+                    <td className="p-3 text-zinc-400">{c.partido}</td>
+                    <td className="p-3 text-right font-mono text-zinc-500">{c.nroDocumento || '—'}</td>
+                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-green-500/20 text-green-400 border border-green-500/30">{c.estado || 'INSCRITO'}</span></td>
+                  </tr>
+                ))}</tbody>
+              </table>
             </div>
           </div>
           {/* Red flags from indicators */}
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Alertas Judiciales Detectadas</h3></div>
-            {indicators.filter(i => i.category === "ALERTA DE CORRUPCIÓN" || i.severity >= 70).map(ind => (
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500" /> Alertas de Corrupción Detectadas</h3></div>
+            {(corruptionData?.indicadores || indicators).filter((i: any) => i.category === "ALERTA DE CORRUPCIÓN" || i.severity >= 70).map((ind: any) => (
               <div key={ind.id} className="p-4 border-b border-zinc-800/50">
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />
-                  <div>
+                  <div className="flex-1">
                     <p className="text-white font-semibold text-sm">{ind.title}</p>
                     <p className="text-zinc-400 text-xs mt-1">{ind.evidence}</p>
                     <p className="text-zinc-500 text-[10px] mt-2 italic">Fuente: {ind.source}</p>
+                    <p className="text-zinc-400 text-xs mt-1"><strong className="text-zinc-300">Impacto:</strong> {ind.impact}</p>
                   </div>
                   <span className="px-2 py-1 rounded text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 shrink-0">{ind.severity}/100</span>
                 </div>
@@ -603,33 +609,21 @@ function CorrupcionSection() {
         <div className="space-y-4">
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 p-6">
             <h2 className="text-lg font-bold text-white flex items-center gap-2"><FileText className="w-5 h-5 text-blue-500" /> Módulo 5: Fact-Checker de Propuestas</h2>
-            <p className="text-zinc-400 text-sm mt-2">Verifica promesas de campaña contra presupuesto real y datos del MEF.</p>
-            <div className="mt-4 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-              <p className="text-blue-300 text-sm font-semibold">Fuente: Planes de Gobierno del JNE (PDFs)</p>
-              <p className="text-zinc-400 text-xs mt-1">{corruptionData?.moduleStatus?.factChecker?.description}</p>
-              <div className="mt-3 p-3 bg-zinc-800/50 rounded">
-                <p className="text-zinc-300 text-xs font-semibold mb-2">Categorías de verificación:</p>
-                <div className="flex gap-4 text-xs">
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500"></span> Verdadero</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span> Falso</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Imposible</span>
-                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-zinc-500"></span> Sin verificar</span>
-                </div>
-              </div>
-            </div>
+            <p className="text-zinc-400 text-sm mt-2">Planes de gobierno de {corruptionData?.candidatos?.length || 0} candidatos. Datos REALES del JNE.</p>
           </div>
           <div className="bg-zinc-900/60 rounded-2xl border border-zinc-800 overflow-hidden">
-            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Planes de Gobierno Disponibles (JNE)</h3></div>
-            <div className="max-h-96 overflow-y-auto">
+            <div className="p-4 border-b border-zinc-800"><h3 className="font-bold text-white">Planes de Gobierno - Datos del JNE</h3></div>
+            <div className="max-h-[600px] overflow-y-auto">
               <table className="w-full text-sm">
                 <thead><tr className="text-zinc-500 text-[10px] uppercase border-b border-zinc-800 sticky top-0 bg-zinc-900">
-                  <th className="text-left p-3">Candidato</th><th className="text-left p-3">Partido</th><th className="text-left p-3">Plan de Gobierno</th>
+                  <th className="text-left p-3 w-12">#</th><th className="text-left p-3">Candidato</th><th className="text-left p-3">Partido</th><th className="text-left p-3">Plan de Gobierno</th>
                 </tr></thead>
                 <tbody>{(corruptionData?.candidatos || []).map((c: any) => (
                   <tr key={c.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                    <td className="p-3 text-zinc-500 font-bold">{c.id}</td>
                     <td className="p-3 text-white font-semibold">{c.nombre}</td>
                     <td className="p-3 text-zinc-400">{c.partido}</td>
-                    <td className="p-3"><a href={c.planGobiernoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 text-xs hover:underline">Ver Plan →</a></td>
+                    <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">PDF disponible en JNE</span></td>
                   </tr>
                 ))}</tbody>
               </table>

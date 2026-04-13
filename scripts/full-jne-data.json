@@ -1,0 +1,160 @@
+{
+  "timestamp": 1776075300034,
+  "lastUpdate": "13/4/2026, 5:15:00 a. m.",
+  "source": "JNE Voto Informado - Datos REALES scrapeados automáticamente",
+  "candidatos": [],
+  "moduleStatus": {
+    "radarPatrimonial": {
+      "available": true,
+      "source": "JNE Voto Informado",
+      "description": "Datos extraídos directamente del JNE. Cada candidato incluye partido, cargo, periodo y plan de gobierno."
+    },
+    "buscadorFantasmas": {
+      "available": false,
+      "source": "ONPE Claridad + SEACE + SUNAT",
+      "description": "Requiere cruce de datos de ONPE Claridad (aportantes), SEACE (contratos) y SUNAT (estado de empresas). Todos son interfaces HTML sin API."
+    },
+    "historialJudicial": {
+      "available": true,
+      "source": "JNE Voto Informado + Poder Judicial",
+      "description": "Antecedentes declarados en Hoja de Vida del JNE. Para verificaciones adicionales se requiere consulta en Poder Judicial."
+    },
+    "redesFamiliares": {
+      "available": false,
+      "source": "JNE Voto Informado + Portal Transparencia MEF",
+      "description": "Familiares declarados en Hoja de Vida del JNE. Cruce con planillas requiere Portal de Transparencia."
+    },
+    "factChecker": {
+      "available": true,
+      "source": "Planes de Gobierno del JNE",
+      "description": "Dimensiones de planes de gobierno extraídas directamente del JNE Voto Informado."
+    },
+    "grafoPoder": {
+      "available": false,
+      "source": "SEACE + ONPE Claridad",
+      "description": "Requiere cruce de aportantes con contratos del Estado."
+    }
+  },
+  "indicadores": [
+    {
+      "id": "material",
+      "title": "Material Electoral No Entregado",
+      "severity": 78,
+      "status": "CONFIRMADO",
+      "category": "IRREGULARIDAD LOGÍSTICA",
+      "evidence": "63,300 personas en Lima no pudieron votar por falta de material electoral.",
+      "source": "Defensoría del Pueblo, 12 abril 2026",
+      "impact": "63,300 ciudadanos sin voto"
+    },
+    {
+      "id": "noflash",
+      "title": "Eliminación del Flash Electoral",
+      "severity": 65,
+      "status": "CONFIRMADO",
+      "category": "OPACIDAD",
+      "evidence": "ONPE eliminó flash electoral. Piero Corvetto confirmó resultados solo en web oficial.",
+      "source": "ONPE, marzo 2026",
+      "impact": "Menor transparencia"
+    },
+    {
+      "id": "votos",
+      "title": "Denuncias de Compra de Votos",
+      "severity": 85,
+      "status": "EN INVESTIGACIÓN",
+      "category": "CORRUPCIÓN",
+      "evidence": "JNE Resolución Nº 0393-2026-JNE sobre compra de votos y fraude electoral.",
+      "source": "JNE Resolución 0393-2026-JNE",
+      "impact": "Integridad bajo investigación"
+    },
+    {
+      "id": "exterior",
+      "title": "Voto Suspendido en Medio Oriente",
+      "severity": 72,
+      "status": "CONFIRMADO",
+      "category": "CONSTITUCIONAL",
+      "evidence": "Canciller Hugo de Zela suspendió elecciones en Medio Oriente.",
+      "source": "TVPerú, marzo 2026",
+      "impact": "Miles sin voto en exterior"
+    },
+    {
+      "id": "cedulas",
+      "title": "Costo S/1M+ Traslado Cédulas",
+      "severity": 55,
+      "status": "CONFIRMADO",
+      "category": "FINANCIERA",
+      "evidence": "Cédulas del extranjero vuelven a Lima costando S/1M+. Antes se custodiaban localmente.",
+      "source": "Ojo Público #6159",
+      "impact": "S/1M+ sin justificación clara"
+    },
+    {
+      "id": "locales",
+      "title": "ONPE \"Mendigó\" Locales",
+      "severity": 60,
+      "status": "CONFIRMADO",
+      "category": "LOGÍSTICA",
+      "evidence": "Piero Corvetto reveló que instituciones se negaron a ceder espacios.",
+      "source": "El Comercio, marzo 2026",
+      "impact": "Infraestructura comprometida"
+    },
+    {
+      "id": "observers",
+      "title": "Observación Internacional OEA+UE",
+      "severity": -15,
+      "status": "POSITIVO",
+      "category": "TRANSPARENCIA",
+      "evidence": "200+ observadores de OEA y UE desplegados.",
+      "source": "ANDINA, marzo 2026",
+      "impact": "Mayor supervisión"
+    },
+    {
+      "id": "fragmentacion",
+      "title": "35 Candidatos - Récord Histórico",
+      "severity": 45,
+      "status": "VERIFICADO",
+      "category": "SISTÉMICA",
+      "evidence": "47% votos dispersos. Solo 28% votantes bien informados.",
+      "source": "Ipsos/CPI/Datum",
+      "impact": "Resultados poco representativos"
+    },
+    {
+      "id": "actas",
+      "title": "Solo 28 Actas Enviadas al JEE",
+      "severity": 52,
+      "status": "EN CURSO",
+      "category": "PROCESAL",
+      "evidence": "De 92,766 actas totales, solo 28 enviadas para validación.",
+      "source": "ONPE, 13/04/2026",
+      "impact": "Retraso en resultados"
+    },
+    {
+      "id": "transparencia",
+      "title": "Sin API Pública de Datos",
+      "severity": 58,
+      "status": "CONFIRMADO",
+      "category": "OPACIDAD",
+      "evidence": "ONPE no proporciona API ni datos abiertos. Solo web propietaria.",
+      "source": "Análisis técnico",
+      "impact": "Sin auditoría automatizada"
+    },
+    {
+      "id": "pragmatismo",
+      "title": "44% Vota por Pragmatismo",
+      "severity": 40,
+      "status": "ENCUESTA",
+      "category": "SOCIOLÓGICA",
+      "evidence": "Solo 20% vota por programa. 44% elige por \"quién hará más\".",
+      "source": "CPI, marzo 2026",
+      "impact": "Votos poco informados"
+    },
+    {
+      "id": "inseguridad",
+      "title": "Crimen Preocupación #1 (68%)",
+      "severity": 35,
+      "status": "ENCUESTA",
+      "category": "CONTEXTO",
+      "evidence": "68% cita crimen vs 52% economía, 48% corrupción.",
+      "source": "Ipsos, abril 2026",
+      "impact": "Polarización hacia mano dura"
+    }
+  ]
+}

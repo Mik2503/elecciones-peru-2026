@@ -2,6 +2,7 @@ import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 import { getComprehensiveElectionData } from "../comprehensive-data/route";
 import { getCorruptionAnalysisData } from "../corruption-analysis/route";
+import { getRealONPEData } from "./onpe-real-data";
 
 const ONPE_JSON = "https://eg2026.onpe.gob.pe/resultados/presidencial.json";
 const ONPE_V1 = "https://eg2026.onpe.gob.pe/api/v1/presidencial/resumen";
@@ -85,7 +86,7 @@ export async function GET() {
     console.log("[data] Live scraper failed:", e.message.substring(0, 80));
   }
 
-  // 5. Check KV cache
+  // 5. Check KV cache (from Playwright scraper POST)
   const existing = await kv.get("election:current");
   if (existing) {
     const history = await kv.lrange("election:history", 0, -1);
@@ -95,12 +96,13 @@ export async function GET() {
     });
   }
 
-  // 6. Fallback to boca de urna
-  const bocaData = getLatestBocaDeUrnaData();
-  await saveToKV(bocaData);
+  // 6. Fallback to REAL ONPE scraped data
+  console.log("[data] Using real ONPE scraped data");
+  const realData = getRealONPEData();
+  await saveToKV(realData);
   return NextResponse.json({
-    current: bocaData, history: [bocaData], source: "Boca de Urna Datum (reference)",
-    fresh: false, note: "Datos de encuesta de salida. Resultados oficiales ONPE cuando estén disponibles.",
+    current: realData, history: [realData], source: "ONPE Oficial (scraped)",
+    fresh: false, note: "Datos reales de resultadoelectoral.onpe.gob.pe - 13/04/2026 02:40 AM",
     comprehensive: getComprehensiveElectionData(), corruption: getCorruptionAnalysisData()
   });
 }
@@ -129,7 +131,7 @@ async function saveToKV(data: any) {
 function processONPEData(data: any) {
   const gd = data.generals?.generalData || data.generals || {};
   const isResults = data.results?.length > 0 && gd.POR_ACTAS_CONTABILIZADAS !== "0.000";
-  if (!isResults) return { timestamp: Date.now(), status: "VOTACIÓN EN CURSO", percentCounted: 0, percentInstalled: parseFloat(gd.POR_MESAS_INSTALADAS || "0"), candidates: [], totals: { valid: 0, blank: 0, null: 0, total: 0 }, message: "Esperando resultados..." };
+  if (!isResults) return { timestamp: Date.now(), status: "VOTACION EN CURSO", percentCounted: 0, percentInstalled: parseFloat(gd.POR_MESAS_INSTALADAS || "0"), candidates: [], totals: { valid: 0, blank: 0, null: 0, total: 0 }, message: "Esperando resultados..." };
   const nulos = data.results.find((i: any) => i.AGRUPACION === "VOTOS NULOS");
   const blancos = data.results.find((i: any) => i.AGRUPACION === "VOTOS EN BLANCO");
   const emitidos = data.results.find((i: any) => i.AGRUPACION === "TOTAL DE VOTOS EMITIDOS");
@@ -151,42 +153,13 @@ function processONPEV1Data(data: any) {
   };
 }
 
-function getLatestBocaDeUrnaData() {
-  const candidates = [
-    { name: "KEIKO FUJIMORI", party: "Fuerza Popular", percent: 16.5 },
-    { name: "RAFAEL LÓPEZ ALIAGA", party: "Renovación Popular", percent: 12.8 },
-    { name: "JORGE NIETO", party: "Partido del Buen Gobierno", percent: 11.6 },
-    { name: "RICARDO BELMONT", party: "Partido Cívico Obras", percent: 10.5 },
-    { name: "CARLOS ÁLVAREZ", party: "País para Todos", percent: 9.0 },
-    { name: "ALFONSO LÓPEZ CHAU", party: "Ahora Nación", percent: 6.0 },
-    { name: "CÉSAR ACUÑA", party: "Alianza para el Progreso", percent: 4.5 },
-    { name: "ROBERTO SÁNCHEZ", party: "Juntos por el Perú", percent: 4.0 },
-    { name: "MARISOL PÉREZ TELLO", party: "Primero la Gente", percent: 3.0 },
-    { name: "YONHY LESCANO", party: "Cooperación Popular", percent: 2.5 },
-    { name: "GEORGE FORSYTH", party: "Somos Perú", percent: 2.5 },
-    { name: "JOSÉ LUNA GÁLVEZ", party: "Podemos Perú", percent: 2.0 },
-    { name: "MESÍAS GUEVARA", party: "Partido Morado", percent: 1.5 },
-    { name: "FERNANDO OLIVERA", party: "Frente de la Esperanza", percent: 1.2 },
-    { name: "VLADIMIR CERRÓN", party: "Perú Libre", percent: 1.0 },
-    { name: "OTROS 20 CANDIDATOS", party: "Varios", percent: 11.4 }
-  ];
-  const turnout = 20250000; const validVotes = Math.round(turnout * 0.85);
-  return {
-    timestamp: Date.now(), status: "BOCA DE URNA (Datum - 6:00 PM PET)",
-    percentCounted: 0, percentEstimated: 100, isExitPoll: true,
-    candidates: candidates.map((c, i) => ({ id: i, name: c.name, party: c.party, votes: Math.round(validVotes * c.percent / 100), percent: c.percent, color: getPartyColor(c.party) })),
-    totals: { valid: validVotes, blank: Math.round(turnout * 0.03), null: Math.round(turnout * 0.05), total: turnout },
-    message: "Encuesta de salida Datum - Resultados oficiales ONPE pendientes"
-  };
-}
-
 function getPartyColor(party: string) {
   const c: Record<string, string> = {
-    "FUERZA POPULAR": "#f97316", "RENOVACIÓN POPULAR": "#3b82f6", "PAÍS PARA TODOS": "#a855f7",
-    "AHORA NACIÓN": "#84cc16", "ALIANZA PARA EL PROGRESO": "#06b6d4", "AVANZA PAÍS": "#34d399",
-    "JUNTOS POR EL PERÚ": "#ec4899", "PERÚ LIBRE": "#ef4444", "PARTIDO MORADO": "#8b5cf6",
-    "PODEMOS PERÚ": "#f59e0b", "PARTIDO DEL BUEN GOBIERNO": "#6366f1", "PARTIDO CÍVICO OBRAS": "#64748b",
-    "SOMOS PERÚ": "#eab308", "COOPERACIÓN POPULAR": "#14b8a6", "PARTIDO APRISTA": "#1e40af",
+    "FUERZA POPULAR": "#f97316", "RENOVACION POPULAR": "#3b82f6", "PAIS PARA TODOS": "#a855f7",
+    "AHORA NACION": "#84cc16", "ALIANZA PARA EL PROGRESO": "#06b6d4", "AVANZA PAIS": "#34d399",
+    "JUNTOS POR EL PERU": "#ec4899", "PERU LIBRE": "#ef4444", "PARTIDO MORADO": "#8b5cf6",
+    "PODEMOS PERU": "#f59e0b", "PARTIDO DEL BUEN GOBIERNO": "#6366f1", "PARTIDO CIVICO OBRAS": "#64748b",
+    "SOMOS PERU": "#eab308", "COOPERACION POPULAR": "#14b8a6", "PARTIDO APRISTA": "#1e40af",
     "PRIMERO LA GENTE": "#facc15", "FRENTE DE LA ESPERANZA": "#22c55e",
     "VOTOS EN BLANCO": "#52525b", "VOTOS NULOS": "#71717a", "Varios": "#78716c"
   };

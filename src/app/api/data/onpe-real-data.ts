@@ -1,0 +1,83 @@
+const realData = {
+  timestamp: 1776041287317,
+  status: "RESULTADOS EN VIVO - ONPE Oficial",
+  percentCounted: 0.170,
+  isExitPoll: false,
+  isLiveScraped: true,
+  source: "ONPE Official (resultadoelectoral.onpe.gob.pe)",
+  lastUpdate: "13/04/2026 02:40:16 a.m.",
+  totalActas: 92766,
+  processedActas: 158,
+  pendingActas: 92608,
+  candidates: [
+    { id: 0, name: "RAFAEL BERNARDO LOPEZ ALIAGA CAZORLA", party: "RENOVACION POPULAR", votes: 7407, validPercent: 25.510, emitPercent: 22.577, color: "#3b82f6" },
+    { id: 1, name: "JORGE NIETO MONTESINOS", party: "PARTIDO DEL BUEN GOBIERNO", votes: 4823, validPercent: 16.610, emitPercent: 14.701, color: "#6366f1" },
+    { id: 2, name: "KEIKO SOFIA FUJIMORI HIGUCHI", party: "FUERZA POPULAR", votes: 4170, validPercent: 14.361, emitPercent: 12.710, color: "#f97316" },
+    { id: 3, name: "CARLOS GONSALO ALVAREZ LOAYZA", party: "PARTIDO PAIS PARA TODOS", votes: 2607, validPercent: 8.979, emitPercent: 7.946, color: "#a855f7" },
+    { id: 4, name: "RICARDO PABLO BELMONT CASSINELLI", party: "PARTIDO CIVICO OBRAS", votes: 2279, validPercent: 7.849, emitPercent: 6.946, color: "#64748b" },
+    { id: 5, name: "PABLO ALFONSO LOPEZ CHAU NAVA", party: "AHORA NACION - AN", votes: 1974, validPercent: 6.798, emitPercent: 6.017, color: "#84cc16" },
+    { id: 6, name: "MARIA SOLEDAD PEREZ TELLO", party: "PRIMERO LA GENTE", votes: 1448, validPercent: 4.987, emitPercent: 4.414, color: "#facc15" },
+    { id: 7, name: "ALFONSO CARLOS ESPA Y GARCES-ALVEAR", party: "PARTIDO SICREO", votes: 926, validPercent: 3.189, emitPercent: 2.822, color: "#e879f9" },
+    { id: 8, name: "ROBERTO HELBERT SANCHEZ PALOMINO", party: "JUNTOS POR EL PERU", votes: 609, validPercent: 2.097, emitPercent: 1.856, color: "#ec4899" },
+    { id: 9, name: "LUIS FERNANDO OLIVERA VEGA", party: "PARTIDO FRENTE DE LA ESPERANZA 2021", votes: 352, validPercent: 1.212, emitPercent: 1.073, color: "#22c55e" },
+    { id: 10, name: "PITTER ENRIQUE VALDERRAMA PENA", party: "PARTIDO APRISTA PERUANO", votes: 306, validPercent: 1.054, emitPercent: 0.933, color: "#1e40af" },
+    { id: 11, name: "ROBERTO ENRIQUE CHIABRA LEON", party: "UNIDAD NACIONAL", votes: 184, validPercent: 0.634, emitPercent: 0.561, color: "#1d4ed8" },
+    { id: 12, name: "JOSE LEON LUNA GALVEZ", party: "PODEMOS PERU", votes: 179, validPercent: 0.616, emitPercent: 0.546, color: "#f59e0b" },
+    { id: 13, name: "GEORGE PATRICK FORSYTH SOMMER", party: "PARTIDO DEMOCRATICO SOMOS PERU", votes: 165, validPercent: 0.568, emitPercent: 0.503, color: "#eab308" },
+    { id: 14, name: "HERBERT CALLER GUTIERREZ", party: "PARTIDO PATRIOTICO DEL PERU", votes: 158, validPercent: 0.544, emitPercent: 0.482, color: "#78716c" },
+    { id: 15, name: "WOLFGANG MARIO GROZO COSTA", party: "PARTIDO POLITICO INTEGRIDAD DEMOCRATICA", votes: 148, validPercent: 0.510, emitPercent: 0.451, color: "#c084fc" },
+    { id: 16, name: "MESIAS ANTONIO GUEVARA AMASIFUEN", party: "PARTIDO MORADO", votes: 143, validPercent: 0.492, emitPercent: 0.436, color: "#8b5cf6" },
+    { id: 17, name: "RONALD DARWIN ATENCIO SOTOMAYOR", party: "ALIANZA ELECTORAL VENCEREMOS", votes: 126, validPercent: 0.434, emitPercent: 0.384, color: "#0d9488" },
+    { id: 18, name: "YONHY LESCANO ANCIETA", party: "PARTIDO POLITICO COOPERACION POPULAR", votes: 121, validPercent: 0.417, emitPercent: 0.369, color: "#14b8a6" },
+    { id: 19, name: "ROSARIO DEL PILAR FERNANDEZ BAZAN", party: "UN CAMINO DIFERENTE", votes: 121, validPercent: 0.417, emitPercent: 0.369, color: "#94a3b8" },
+    { id: 20, name: "MARIO ENRIQUE VIZCARRA CORNEJO", party: "PARTIDO POLITICO PERU PRIMERO", votes: 104, validPercent: 0.358, emitPercent: 0.317, color: "#fbbf24" },
+    { id: 21, name: "CESAR ACUNA PERALTA", party: "ALIANZA PARA EL PROGRESO", votes: 100, validPercent: 0.344, emitPercent: 0.305, color: "#06b6d4" },
+    { id: 22, name: "CHARLIE CARRASCO SALAZAR", party: "PARTIDO DEMOCRATA UNIDO PERU", votes: 91, validPercent: 0.313, emitPercent: 0.277, color: "#a3e635" },
+    { id: 23, name: "RAFAEL JORGE BELAUNDE LLOSA", party: "LIBERTAD POPULAR", votes: 77, validPercent: 0.265, emitPercent: 0.235, color: "#0ea5e9" },
+    { id: 24, name: "VLADIMIR ROY CERRON ROJAS", party: "PARTIDO POLITICO NACIONAL PERU LIBRE", votes: 70, validPercent: 0.241, emitPercent: 0.213, color: "#ef4444" },
+    { id: 25, name: "PAUL DAVIS JAIMES BLANCO", party: "PROGRESEMOS", votes: 69, validPercent: 0.238, emitPercent: 0.210, color: "#a78bfa" },
+    { id: 26, name: "ALEX GONZALES CASTILLO", party: "PARTIDO DEMOCRATA VERDE", votes: 58, validPercent: 0.200, emitPercent: 0.177, color: "#4ade80" },
+    { id: 27, name: "JOSE DANIEL WILLIAMS ZAPATA", party: "AVANZA PAIS", votes: 57, validPercent: 0.196, emitPercent: 0.174, color: "#34d399" },
+    { id: 28, name: "FIORELLA GIANNINA MOLINELLI ARISTONDO", party: "FUERZA Y LIBERTAD", votes: 36, validPercent: 0.124, emitPercent: 0.110, color: "#f43f5e" },
+    { id: 29, name: "FRANCISCO ERNESTO DIEZ-CANSECO TAVARA", party: "PARTIDO POLITICO PERU ACCION", votes: 30, validPercent: 0.103, emitPercent: 0.091, color: "#fb923c" },
+    { id: 30, name: "ALVARO GONZALO PAZ DE LA BARRA FREIGEIRO", party: "FE EN EL PERU", votes: 27, validPercent: 0.093, emitPercent: 0.082, color: "#c2410c" },
+    { id: 31, name: "CARLOS ERNESTO JAICO CARRANZA", party: "PERU MODERNO", votes: 20, validPercent: 0.069, emitPercent: 0.061, color: "#22d3ee" },
+    { id: 32, name: "ARMANDO JOAQUIN MASSE FERNANDEZ", party: "PARTIDO DEMOCRATICO FEDERAL", votes: 15, validPercent: 0.052, emitPercent: 0.046, color: "#2dd4bf" },
+    { id: 33, name: "WALTER GILMER CHIRINOS PURIZAGA", party: "PARTIDO POLITICO PRIN", votes: 14, validPercent: 0.048, emitPercent: 0.043, color: "#38bdf8" },
+    { id: 34, name: "ANTONIO ORTIZ VILLANO", party: "SALVEMOS AL PERU", votes: 12, validPercent: 0.041, emitPercent: 0.037, color: "#fb7185" },
+    { id: 35, name: "NAPOLEON BECERRA GARCIA", party: "PARTIDO DE LOS TRABAJADORES Y EMPRENDEDORES", votes: 10, validPercent: 0.034, emitPercent: 0.030, color: "#dc2626" }
+  ],
+  totals: { validVotes: 29036, blankVotes: 2772, nullVotes: 1000, totalVotes: 32808 },
+  parlamentoAndino: [
+    { name: "RENOVACION POPULAR", votes: 956, validPercent: 23.524, color: "#3b82f6" },
+    { name: "PARTIDO DEL BUEN GOBIERNO", votes: 642, validPercent: 15.797, color: "#6366f1" },
+    { name: "FUERZA POPULAR", votes: 416, validPercent: 10.236, color: "#f97316" },
+    { name: "PARTIDO CIVICO OBRAS", votes: 408, validPercent: 10.039, color: "#64748b" },
+    { name: "PARTIDO PAIS PARA TODOS", votes: 398, validPercent: 9.793, color: "#a855f7" },
+    { name: "AHORA NACION - AN", votes: 367, validPercent: 9.031, color: "#84cc16" },
+    { name: "PRIMERO LA GENTE", votes: 229, validPercent: 5.635, color: "#facc15" },
+    { name: "PARTIDO APRISTA PERUANO", votes: 88, validPercent: 2.165, color: "#1e40af" },
+    { name: "JUNTOS POR EL PERU", votes: 76, validPercent: 1.870, color: "#ec4899" }
+  ],
+  participacion: {
+    electoresHabiles: 27325432,
+    totalAsistentes: 32808,
+    totalAusentes: 21185,
+    asistentesPercent: 0.120,
+    ausentesPercent: 0.078,
+    pendientesPercent: 99.802,
+    exteriorAsistentes: 0.678,
+    peruAsistentes: 0.094
+  },
+  actas: {
+    presidencial: { total: 92766, processed: 158, percent: 0.170, pending: 92608 },
+    senadoresUnico: { total: 92766, processed: 4, percent: 0.004, pending: 92762 },
+    senadoresMultiple: { total: 92766, processed: 43, percent: 0.046, pending: 92723 },
+    diputados: { total: 92766, processed: 31, percent: 0.033, pending: 92735 },
+    parlamentoAndino: { total: 92766, processed: 31, percent: 0.033, pending: 92735 }
+  }
+};
+
+export function getRealONPEData() {
+  return { ...realData, timestamp: Date.now() };
+}

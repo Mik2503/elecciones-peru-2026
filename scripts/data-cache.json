@@ -1,182 +1,182 @@
 {
-  "timestamp": 1776071241965,
-  "lastUpdate": "13/4/2026, 4:07:21 a. m.",
+  "timestamp": 1776072382220,
+  "lastUpdate": "13/4/2026, 4:26:22 a. m.",
   "presidenciales": {
     "totalActas": 92766,
-    "processedActas": 44803,
+    "processedActas": 45218,
     "jeePending": 0,
-    "pendingActas": 47895,
-    "percent": 48.297,
+    "pendingActas": 47479,
+    "percent": 48.744,
     "candidates": [
       {
         "id": 1,
         "name": "KEIKO SOFIA FUJIMORI HIGUCHI",
         "party": "FUERZA POPULAR",
-        "validPercent": 17.029,
-        "emitPercent": 14.662,
-        "votes": 1515036,
+        "validPercent": 17.018,
+        "emitPercent": 14.648,
+        "votes": 1527123,
         "color": "#f97316"
       },
       {
         "id": 2,
         "name": "RAFAEL BERNARDO LÓPEZ ALIAGA CAZORLA",
         "party": "RENOVACIÓN POPULAR",
-        "validPercent": 15.196,
-        "emitPercent": 13.084,
-        "votes": 1351989,
+        "validPercent": 15.143,
+        "emitPercent": 13.034,
+        "votes": 1358825,
         "color": "hsl(255, 65%, 55%)"
       },
       {
         "id": 3,
         "name": "JORGE NIETO MONTESINOS",
         "party": "PARTIDO DEL BUEN GOBIERNO",
-        "validPercent": 13.156,
-        "emitPercent": 11.328,
-        "votes": 1170525,
+        "validPercent": 13.124,
+        "emitPercent": 11.296,
+        "votes": 1177636,
         "color": "#8b5cf6"
       },
       {
         "id": 4,
         "name": "RICARDO PABLO BELMONT CASSINELLI",
         "party": "PARTIDO CÍVICO OBRAS",
-        "validPercent": 9.709,
-        "emitPercent": 8.359,
-        "votes": 863787,
+        "validPercent": 9.721,
+        "emitPercent": 8.367,
+        "votes": 872309,
         "color": "#8b5cf6"
       },
       {
         "id": 5,
         "name": "CARLOS GONSALO ALVAREZ LOAYZA",
         "party": "PARTIDO PAÍS PARA TODOS",
-        "validPercent": 8.561,
-        "emitPercent": 7.371,
-        "votes": 761706,
+        "validPercent": 8.551,
+        "emitPercent": 7.36,
+        "votes": 767306,
         "color": "#8b5cf6"
       },
       {
         "id": 6,
         "name": "PABLO ALFONSO LOPEZ CHAU NAVA",
         "party": "AHORA NACIÓN - AN",
-        "validPercent": 7.543,
-        "emitPercent": 6.495,
-        "votes": 671096,
+        "validPercent": 7.551,
+        "emitPercent": 6.499,
+        "votes": 677573,
         "color": "#84cc16"
       },
       {
         "id": 7,
         "name": "ROBERTO HELBERT SANCHEZ PALOMINO",
         "party": "JUNTOS POR EL PERÚ",
-        "validPercent": 7.309,
-        "emitPercent": 6.293,
-        "votes": 650315,
+        "validPercent": 7.369,
+        "emitPercent": 6.343,
+        "votes": 661240,
         "color": "#ec4899"
       },
       {
         "id": 8,
         "name": "MARIA SOLEDAD PEREZ TELLO",
         "party": "PRIMERO LA GENTE – COMUNIDAD, ECOLOGÍA, LIBERTAD Y PROGRESO",
-        "validPercent": 3.986,
-        "emitPercent": 3.432,
-        "votes": 354631,
+        "validPercent": 3.977,
+        "emitPercent": 3.423,
+        "votes": 356906,
         "color": "#facc15"
       },
       {
         "id": 9,
         "name": "ALFONSO CARLOS ESPA Y GARCES-ALVEAR",
         "party": "PARTIDO SICREO",
-        "validPercent": 3.762,
-        "emitPercent": 3.239,
-        "votes": 334663,
+        "validPercent": 3.756,
+        "emitPercent": 3.233,
+        "votes": 337062,
         "color": "#8b5cf6"
       },
       {
         "id": 10,
         "name": "LUIS FERNANDO OLIVERA VEGA",
         "party": "PARTIDO FRENTE DE LA ESPERANZA 2021",
-        "validPercent": 1.78,
-        "emitPercent": 1.532,
-        "votes": 158336,
+        "validPercent": 1.784,
+        "emitPercent": 1.536,
+        "votes": 160126,
         "color": "#8b5cf6"
       },
       {
         "id": 11,
         "name": "JOSE LEON LUNA GALVEZ",
         "party": "PODEMOS PERÚ",
-        "validPercent": 1.219,
-        "emitPercent": 1.05,
-        "votes": 108452,
+        "validPercent": 1.224,
+        "emitPercent": 1.054,
+        "votes": 109870,
         "color": "#f59e0b"
       },
       {
         "id": 12,
         "name": "YONHY LESCANO ANCIETA",
         "party": "PARTIDO POLÍTICO COOPERACIÓN POPULAR",
-        "validPercent": 1.116,
-        "emitPercent": 0.961,
-        "votes": 99256,
+        "validPercent": 1.124,
+        "emitPercent": 0.967,
+        "votes": 100831,
         "color": "#8b5cf6"
       },
       {
         "id": 13,
         "name": "PITTER ENRIQUE VALDERRAMA PEÑA",
         "party": "PARTIDO APRISTA PERUANO",
-        "validPercent": 0.911,
+        "validPercent": 0.912,
         "emitPercent": 0.785,
-        "votes": 81081,
+        "votes": 81809,
         "color": "#ef4444"
       },
       {
         "id": 14,
         "name": "CESAR ACUÑA PERALTA",
         "party": "ALIANZA PARA EL PROGRESO",
-        "validPercent": 0.842,
-        "emitPercent": 0.725,
-        "votes": 74924,
+        "validPercent": 0.845,
+        "emitPercent": 0.727,
+        "votes": 75793,
         "color": "#06b6d4"
       },
       {
         "id": 15,
         "name": "GEORGE PATRICK FORSYTH SOMMER",
         "party": "PARTIDO DEMOCRÁTICO SOMOS PERÚ",
-        "validPercent": 0.791,
-        "emitPercent": 0.681,
-        "votes": 70412,
+        "validPercent": 0.793,
+        "emitPercent": 0.682,
+        "votes": 71150,
         "color": "#8b5cf6"
       },
       {
         "id": 16,
         "name": "HERBERT CALLER GUTIERREZ",
         "party": "PARTIDO PATRIÓTICO DEL PERÚ",
-        "validPercent": 0.779,
-        "emitPercent": 0.671,
-        "votes": 69316,
+        "validPercent": 0.781,
+        "emitPercent": 0.672,
+        "votes": 70037,
         "color": "#8b5cf6"
       },
       {
         "id": 17,
         "name": "MARIO ENRIQUE VIZCARRA CORNEJO",
         "party": "PARTIDO POLÍTICO PERÚ PRIMERO",
-        "validPercent": 0.72,
-        "emitPercent": 0.62,
-        "votes": 64098,
+        "validPercent": 0.722,
+        "emitPercent": 0.621,
+        "votes": 64791,
         "color": "#8b5cf6"
       },
       {
         "id": 18,
         "name": "RONALD DARWIN ATENCIO SOTOMAYOR",
         "party": "ALIANZA ELECTORAL VENCEREMOS",
-        "validPercent": 0.645,
-        "emitPercent": 0.556,
-        "votes": 57419,
+        "validPercent": 0.648,
+        "emitPercent": 0.558,
+        "votes": 58137,
         "color": "#06b6d4"
       },
       {
         "id": 19,
         "name": "CHARLIE CARRASCO SALAZAR",
         "party": "PARTIDO DEMÓCRATA UNIDO PERÚ",
-        "validPercent": 0.598,
-        "emitPercent": 0.515,
-        "votes": 53221,
+        "validPercent": 0.603,
+        "emitPercent": 0.519,
+        "votes": 54068,
         "color": "#8b5cf6"
       },
       {
@@ -185,34 +185,34 @@
         "party": "PARTIDO MORADO",
         "validPercent": 0.527,
         "emitPercent": 0.453,
-        "votes": 46848,
+        "votes": 47254,
         "color": "#8b5cf6"
       },
       {
         "id": 21,
         "name": "ROSARIO DEL PILAR FERNANDEZ BAZAN",
         "party": "UN CAMINO DIFERENTE",
-        "validPercent": 0.504,
-        "emitPercent": 0.434,
-        "votes": 44803,
+        "validPercent": 0.505,
+        "emitPercent": 0.435,
+        "votes": 45359,
         "color": "#ec4899"
       },
       {
         "id": 22,
         "name": "ROBERTO ENRIQUE CHIABRA LEON",
         "party": "UNIDAD NACIONAL",
-        "validPercent": 0.483,
-        "emitPercent": 0.416,
-        "votes": 42999,
+        "validPercent": 0.482,
+        "emitPercent": 0.415,
+        "votes": 43288,
         "color": "#1d4ed8"
       },
       {
         "id": 23,
         "name": "VLADIMIR ROY CERRON ROJAS",
         "party": "PARTIDO POLÍTICO NACIONAL PERÚ LIBRE",
-        "validPercent": 0.465,
-        "emitPercent": 0.4,
-        "votes": 41335,
+        "validPercent": 0.468,
+        "emitPercent": 0.403,
+        "votes": 41972,
         "color": "#8b5cf6"
       },
       {
@@ -221,7 +221,7 @@
         "party": "PARTIDO POLÍTICO INTEGRIDAD DEMOCRÁTICA",
         "validPercent": 0.426,
         "emitPercent": 0.367,
-        "votes": 37943,
+        "votes": 38233,
         "color": "#8b5cf6"
       },
       {
@@ -230,16 +230,16 @@
         "party": "PROGRESEMOS",
         "validPercent": 0.375,
         "emitPercent": 0.323,
-        "votes": 33343,
+        "votes": 33674,
         "color": "#a78bfa"
       },
       {
         "id": 26,
         "name": "ALEX GONZALES CASTILLO",
         "party": "PARTIDO DEMÓCRATA VERDE",
-        "validPercent": 0.314,
+        "validPercent": 0.315,
         "emitPercent": 0.271,
-        "votes": 27968,
+        "votes": 28280,
         "color": "#8b5cf6"
       },
       {
@@ -248,25 +248,25 @@
         "party": "LIBERTAD POPULAR",
         "validPercent": 0.241,
         "emitPercent": 0.207,
-        "votes": 21420,
+        "votes": 21607,
         "color": "#0ea5e9"
       },
       {
         "id": 28,
         "name": "JOSE DANIEL WILLIAMS ZAPATA",
         "party": "AVANZA PAÍS - PARTIDO DE INTEGRACIÓN SOCIAL",
-        "validPercent": 0.194,
+        "validPercent": 0.193,
         "emitPercent": 0.167,
-        "votes": 17238,
+        "votes": 17363,
         "color": "#34d399"
       },
       {
         "id": 29,
         "name": "FRANCISCO ERNESTO DIEZ-CANSECO TÁVARA",
         "party": "PARTIDO POLÍTICO PERÚ ACCIÓN",
-        "validPercent": 0.169,
+        "validPercent": 0.17,
         "emitPercent": 0.146,
-        "votes": 15070,
+        "votes": 15223,
         "color": "#8b5cf6"
       },
       {
@@ -274,17 +274,17 @@
         "name": "FIORELLA GIANNINA MOLINELLI ARISTONDO",
         "party": "FUERZA Y LIBERTAD",
         "validPercent": 0.153,
-        "emitPercent": 0.131,
-        "votes": 13588,
+        "emitPercent": 0.132,
+        "votes": 13741,
         "color": "#f97316"
       },
       {
         "id": 31,
         "name": "ALVARO GONZALO PAZ DE LA BARRA FREIGEIRO",
         "party": "FE EN EL PERÚ",
-        "validPercent": 0.115,
+        "validPercent": 0.116,
         "emitPercent": 0.099,
-        "votes": 10235,
+        "votes": 10366,
         "color": "#94a3b8"
       },
       {
@@ -293,7 +293,7 @@
         "party": "PARTIDO DEMOCRATICO FEDERAL",
         "validPercent": 0.114,
         "emitPercent": 0.098,
-        "votes": 10110,
+        "votes": 10241,
         "color": "#8b5cf6"
       },
       {
@@ -302,7 +302,7 @@
         "party": "PARTIDO POLÍTICO PRIN",
         "validPercent": 0.076,
         "emitPercent": 0.065,
-        "votes": 6744,
+        "votes": 6826,
         "color": "#8b5cf6"
       },
       {
@@ -311,7 +311,7 @@
         "party": "SALVEMOS AL PERÚ",
         "validPercent": 0.075,
         "emitPercent": 0.065,
-        "votes": 6688,
+        "votes": 6767,
         "color": "#fb7185"
       },
       {
@@ -320,7 +320,7 @@
         "party": "PARTIDO DE LOS TRABAJADORES Y EMPRENDEDORES PTE - PERÚ",
         "validPercent": 0.064,
         "emitPercent": 0.055,
-        "votes": 5705,
+        "votes": 5767,
         "color": "#8b5cf6"
       },
       {
@@ -329,15 +329,15 @@
         "party": "PERÚ MODERNO",
         "validPercent": 0.053,
         "emitPercent": 0.046,
-        "votes": 4747,
+        "votes": 4794,
         "color": "hsl(291, 65%, 55%)"
       }
     ],
     "totals": {
-      "validVotes": 8897047,
+      "validVotes": 8973347,
       "blankVotes": 0,
       "nullVotes": 0,
-      "totalVotes": 10333136
+      "totalVotes": 10425241
     }
   },
   "senadoresUnico": {
@@ -347,281 +347,281 @@
       {
         "name": "RENOVACIÓN POPULAR",
         "candidates": 29,
-        "validPercent": 19.747,
-        "emitPercent": 15.874,
-        "votes": 131668,
+        "validPercent": 19.814,
+        "emitPercent": 15.947,
+        "votes": 151448,
         "color": "hsl(255, 65%, 55%)"
       },
       {
         "name": "PARTIDO DEL BUEN GOBIERNO",
         "candidates": 29,
-        "validPercent": 15.315,
-        "emitPercent": 12.311,
-        "votes": 102118,
+        "validPercent": 15.323,
+        "emitPercent": 12.332,
+        "votes": 117122,
         "color": "#8b5cf6"
       },
       {
         "name": "FUERZA POPULAR",
         "candidates": 30,
-        "validPercent": 14.334,
-        "emitPercent": 11.523,
-        "votes": 95576,
+        "validPercent": 14.343,
+        "emitPercent": 11.544,
+        "votes": 109632,
         "color": "#f97316"
       },
       {
         "name": "AHORA NACIÓN - AN",
         "candidates": 28,
-        "validPercent": 8.4,
-        "emitPercent": 6.752,
-        "votes": 56006,
+        "validPercent": 8.416,
+        "emitPercent": 6.773,
+        "votes": 64325,
         "color": "#84cc16"
       },
       {
         "name": "PARTIDO CÍVICO OBRAS",
         "candidates": 30,
-        "validPercent": 7.264,
-        "emitPercent": 5.839,
-        "votes": 48435,
+        "validPercent": 7.241,
+        "emitPercent": 5.828,
+        "votes": 55349,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO PAÍS PARA TODOS",
         "candidates": 24,
-        "validPercent": 6.413,
-        "emitPercent": 5.155,
-        "votes": 42761,
+        "validPercent": 6.43,
+        "emitPercent": 5.175,
+        "votes": 49151,
         "color": "#8b5cf6"
       },
       {
         "name": "PRIMERO LA GENTE – COMUNIDAD, ECOLOGÍA, LIBERTAD Y PROGRESO",
         "candidates": 27,
-        "validPercent": 4.952,
-        "emitPercent": 3.981,
-        "votes": 33017,
+        "validPercent": 4.939,
+        "emitPercent": 3.975,
+        "votes": 37752,
         "color": "#facc15"
       },
       {
         "name": "JUNTOS POR EL PERÚ",
         "candidates": 30,
-        "validPercent": 3.498,
-        "emitPercent": 2.812,
-        "votes": 23321,
+        "validPercent": 3.454,
+        "emitPercent": 2.78,
+        "votes": 26402,
         "color": "#ec4899"
       },
       {
         "name": "PARTIDO SICREO",
         "candidates": 28,
-        "validPercent": 3.337,
-        "emitPercent": 2.682,
-        "votes": 22250,
+        "validPercent": 3.322,
+        "emitPercent": 2.674,
+        "votes": 25394,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO APRISTA PERUANO",
         "candidates": 28,
-        "validPercent": 2.063,
-        "emitPercent": 1.658,
-        "votes": 13753,
+        "validPercent": 2.07,
+        "emitPercent": 1.666,
+        "votes": 15819,
         "color": "#ef4444"
       },
       {
         "name": "ALIANZA PARA EL PROGRESO",
         "candidates": 29,
-        "validPercent": 1.728,
-        "emitPercent": 1.389,
-        "votes": 11520,
+        "validPercent": 1.714,
+        "emitPercent": 1.38,
+        "votes": 13103,
         "color": "#06b6d4"
       },
       {
         "name": "PODEMOS PERÚ",
         "candidates": 29,
-        "validPercent": 1.262,
-        "emitPercent": 1.014,
-        "votes": 8414,
+        "validPercent": 1.258,
+        "emitPercent": 1.012,
+        "votes": 9612,
         "color": "#f59e0b"
       },
       {
         "name": "PARTIDO FRENTE DE LA ESPERANZA 2021",
         "candidates": 29,
-        "validPercent": 1.222,
-        "emitPercent": 0.982,
-        "votes": 8147,
+        "validPercent": 1.212,
+        "emitPercent": 0.976,
+        "votes": 9267,
         "color": "#8b5cf6"
       },
       {
         "name": "FRENTE POPULAR AGRÍCOLA FÍA DEL PERÚ",
         "candidates": 30,
-        "validPercent": 1.138,
-        "emitPercent": 0.915,
-        "votes": 7591,
+        "validPercent": 1.132,
+        "emitPercent": 0.911,
+        "votes": 8655,
         "color": "#22c55e"
       },
       {
         "name": "PROGRESEMOS",
         "candidates": 29,
-        "validPercent": 1.05,
+        "validPercent": 1.049,
         "emitPercent": 0.844,
-        "votes": 7004,
+        "votes": 8017,
         "color": "#a78bfa"
       },
       {
         "name": "PARTIDO DEMOCRÁTICO SOMOS PERÚ",
         "candidates": 27,
-        "validPercent": 1.031,
+        "validPercent": 1.03,
         "emitPercent": 0.829,
-        "votes": 6873,
+        "votes": 7869,
         "color": "#8b5cf6"
       },
       {
         "name": "AVANZA PAÍS - PARTIDO DE INTEGRACIÓN SOCIAL",
         "candidates": 24,
-        "validPercent": 0.787,
-        "emitPercent": 0.632,
-        "votes": 5246,
+        "validPercent": 0.792,
+        "emitPercent": 0.638,
+        "votes": 6057,
         "color": "#34d399"
       },
       {
         "name": "PARTIDO MORADO",
         "candidates": 27,
-        "validPercent": 0.596,
-        "emitPercent": 0.479,
-        "votes": 3975,
-        "color": "#8b5cf6"
-      },
-      {
-        "name": "PARTIDO POLÍTICO PERÚ PRIMERO",
-        "candidates": 28,
-        "validPercent": 0.589,
-        "emitPercent": 0.474,
-        "votes": 3929,
+        "validPercent": 0.603,
+        "emitPercent": 0.485,
+        "votes": 4607,
         "color": "#8b5cf6"
       },
       {
         "name": "UNIDAD NACIONAL",
         "candidates": 29,
-        "validPercent": 0.582,
-        "emitPercent": 0.468,
-        "votes": 3881,
+        "validPercent": 0.586,
+        "emitPercent": 0.472,
+        "votes": 4482,
         "color": "#1d4ed8"
       },
       {
-        "name": "PARTIDO PATRIÓTICO DEL PERÚ",
-        "candidates": 26,
-        "validPercent": 0.575,
-        "emitPercent": 0.462,
-        "votes": 3832,
+        "name": "PARTIDO POLÍTICO PERÚ PRIMERO",
+        "candidates": 28,
+        "validPercent": 0.582,
+        "emitPercent": 0.468,
+        "votes": 4447,
         "color": "#8b5cf6"
       },
       {
         "name": "LIBERTAD POPULAR",
         "candidates": 27,
-        "validPercent": 0.565,
-        "emitPercent": 0.454,
-        "votes": 3764,
+        "validPercent": 0.567,
+        "emitPercent": 0.456,
+        "votes": 4333,
         "color": "#0ea5e9"
+      },
+      {
+        "name": "PARTIDO PATRIÓTICO DEL PERÚ",
+        "candidates": 26,
+        "validPercent": 0.566,
+        "emitPercent": 0.456,
+        "votes": 4328,
+        "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO COOPERACIÓN POPULAR",
         "candidates": 28,
-        "validPercent": 0.509,
-        "emitPercent": 0.409,
-        "votes": 3393,
+        "validPercent": 0.503,
+        "emitPercent": 0.405,
+        "votes": 3847,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO DEMÓCRATA UNIDO PERÚ",
         "candidates": 18,
-        "validPercent": 0.48,
-        "emitPercent": 0.386,
-        "votes": 3198,
+        "validPercent": 0.482,
+        "emitPercent": 0.388,
+        "votes": 3684,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO INTEGRIDAD DEMOCRÁTICA",
         "candidates": 30,
-        "validPercent": 0.452,
+        "validPercent": 0.453,
         "emitPercent": 0.364,
-        "votes": 3017,
+        "votes": 3459,
         "color": "#8b5cf6"
       },
       {
         "name": "ALIANZA ELECTORAL VENCEREMOS",
         "candidates": 28,
-        "validPercent": 0.441,
-        "emitPercent": 0.354,
-        "votes": 2938,
+        "validPercent": 0.437,
+        "emitPercent": 0.352,
+        "votes": 3339,
         "color": "#06b6d4"
       },
       {
         "name": "PARTIDO POLÍTICO NACIONAL PERÚ LIBRE",
         "candidates": 30,
-        "validPercent": 0.346,
-        "emitPercent": 0.278,
-        "votes": 2308,
+        "validPercent": 0.344,
+        "emitPercent": 0.277,
+        "votes": 2626,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO DEMÓCRATA VERDE",
         "candidates": 29,
-        "validPercent": 0.34,
-        "emitPercent": 0.274,
-        "votes": 2270,
+        "validPercent": 0.338,
+        "emitPercent": 0.272,
+        "votes": 2584,
         "color": "#8b5cf6"
       },
       {
         "name": "UN CAMINO DIFERENTE",
         "candidates": 30,
-        "validPercent": 0.227,
-        "emitPercent": 0.183,
-        "votes": 1515,
+        "validPercent": 0.233,
+        "emitPercent": 0.187,
+        "votes": 1780,
         "color": "#ec4899"
       },
       {
         "name": "FUERZA Y LIBERTAD",
         "candidates": 28,
-        "validPercent": 0.18,
-        "emitPercent": 0.145,
-        "votes": 1202,
+        "validPercent": 0.182,
+        "emitPercent": 0.147,
+        "votes": 1392,
         "color": "#f97316"
       },
       {
         "name": "FE EN EL PERÚ",
         "candidates": 18,
-        "validPercent": 0.143,
-        "emitPercent": 0.115,
-        "votes": 955,
+        "validPercent": 0.142,
+        "emitPercent": 0.114,
+        "votes": 1082,
         "color": "#94a3b8"
       },
       {
         "name": "PARTIDO POLÍTICO PERÚ ACCIÓN",
         "candidates": 29,
-        "validPercent": 0.121,
-        "emitPercent": 0.098,
-        "votes": 810,
+        "validPercent": 0.124,
+        "emitPercent": 0.1,
+        "votes": 950,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO PRIN",
         "candidates": 26,
-        "validPercent": 0.118,
-        "emitPercent": 0.095,
-        "votes": 787,
+        "validPercent": 0.119,
+        "emitPercent": 0.096,
+        "votes": 908,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO DE LOS TRABAJADORES Y EMPRENDEDORES PTE - PERÚ",
         "candidates": 21,
-        "validPercent": 0.101,
-        "emitPercent": 0.081,
-        "votes": 676,
+        "validPercent": 0.103,
+        "emitPercent": 0.083,
+        "votes": 784,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO DEMOCRATICO FEDERAL",
         "candidates": 23,
-        "validPercent": 0.094,
-        "emitPercent": 0.076,
-        "votes": 627,
+        "validPercent": 0.096,
+        "emitPercent": 0.078,
+        "votes": 737,
         "color": "#8b5cf6"
       }
     ]
@@ -633,265 +633,265 @@
       {
         "name": "RENOVACIÓN POPULAR",
         "candidates": 4,
-        "validPercent": 22.052,
-        "emitPercent": 17.02,
-        "votes": 115015,
+        "validPercent": 22.239,
+        "emitPercent": 17.188,
+        "votes": 133707,
         "color": "hsl(255, 65%, 55%)"
       },
       {
         "name": "PARTIDO DEL BUEN GOBIERNO",
         "candidates": 4,
-        "validPercent": 17.203,
-        "emitPercent": 13.277,
-        "votes": 89721,
+        "validPercent": 17.255,
+        "emitPercent": 13.336,
+        "votes": 103741,
         "color": "#8b5cf6"
       },
       {
         "name": "FUERZA POPULAR",
         "candidates": 4,
-        "validPercent": 14.665,
-        "emitPercent": 11.318,
-        "votes": 76485,
+        "validPercent": 14.633,
+        "emitPercent": 11.309,
+        "votes": 87975,
         "color": "#f97316"
       },
       {
         "name": "AHORA NACIÓN - AN",
         "candidates": 3,
-        "validPercent": 8.572,
-        "emitPercent": 6.615,
-        "votes": 44705,
+        "validPercent": 8.561,
+        "emitPercent": 6.616,
+        "votes": 51469,
         "color": "#84cc16"
       },
       {
         "name": "PARTIDO CÍVICO OBRAS",
         "candidates": 4,
-        "validPercent": 7.875,
-        "emitPercent": 6.078,
-        "votes": 41074,
+        "validPercent": 7.808,
+        "emitPercent": 6.035,
+        "votes": 46945,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO PAÍS PARA TODOS",
         "candidates": 4,
-        "validPercent": 6.463,
-        "emitPercent": 4.988,
-        "votes": 33706,
+        "validPercent": 6.449,
+        "emitPercent": 4.984,
+        "votes": 38771,
         "color": "#8b5cf6"
       },
       {
         "name": "PRIMERO LA GENTE – COMUNIDAD, ECOLOGÍA, LIBERTAD Y PROGRESO",
         "candidates": 4,
-        "validPercent": 4.947,
-        "emitPercent": 3.818,
-        "votes": 25801,
+        "validPercent": 4.919,
+        "emitPercent": 3.801,
+        "votes": 29572,
         "color": "#facc15"
       },
       {
         "name": "JUNTOS POR EL PERÚ",
         "candidates": 4,
-        "validPercent": 2.577,
-        "emitPercent": 1.989,
-        "votes": 13439,
+        "validPercent": 2.564,
+        "emitPercent": 1.982,
+        "votes": 15416,
         "color": "#ec4899"
       },
       {
         "name": "PARTIDO APRISTA PERUANO",
         "candidates": 4,
-        "validPercent": 1.915,
-        "emitPercent": 1.478,
-        "votes": 9988,
+        "validPercent": 1.931,
+        "emitPercent": 1.493,
+        "votes": 11612,
         "color": "#ef4444"
       },
       {
         "name": "FRENTE POPULAR AGRÍCOLA FÍA DEL PERÚ",
         "candidates": 4,
-        "validPercent": 1.36,
-        "emitPercent": 1.05,
-        "votes": 7095,
+        "validPercent": 1.333,
+        "emitPercent": 1.03,
+        "votes": 8016,
         "color": "#22c55e"
       },
       {
         "name": "PARTIDO FRENTE DE LA ESPERANZA 2021",
         "candidates": 4,
-        "validPercent": 1.29,
-        "emitPercent": 0.996,
-        "votes": 6730,
+        "validPercent": 1.278,
+        "emitPercent": 0.988,
+        "votes": 7682,
         "color": "#8b5cf6"
       },
       {
         "name": "PODEMOS PERÚ",
         "candidates": 4,
-        "validPercent": 1.112,
-        "emitPercent": 0.858,
-        "votes": 5800,
+        "validPercent": 1.106,
+        "emitPercent": 0.855,
+        "votes": 6649,
         "color": "#f59e0b"
       },
       {
         "name": "PARTIDO DEMOCRÁTICO SOMOS PERÚ",
         "candidates": 4,
-        "validPercent": 1.042,
-        "emitPercent": 0.804,
-        "votes": 5435,
+        "validPercent": 1.032,
+        "emitPercent": 0.798,
+        "votes": 6204,
         "color": "#8b5cf6"
       },
       {
         "name": "ALIANZA PARA EL PROGRESO",
         "candidates": 4,
-        "validPercent": 0.895,
-        "emitPercent": 0.691,
-        "votes": 4669,
+        "validPercent": 0.891,
+        "emitPercent": 0.688,
+        "votes": 5354,
         "color": "#06b6d4"
       },
       {
         "name": "PROGRESEMOS",
         "candidates": 4,
-        "validPercent": 0.861,
-        "emitPercent": 0.664,
-        "votes": 4490,
+        "validPercent": 0.846,
+        "emitPercent": 0.654,
+        "votes": 5086,
         "color": "#a78bfa"
       },
       {
         "name": "AVANZA PAÍS - PARTIDO DE INTEGRACIÓN SOCIAL",
         "candidates": 3,
-        "validPercent": 0.708,
-        "emitPercent": 0.547,
-        "votes": 3695,
+        "validPercent": 0.722,
+        "emitPercent": 0.558,
+        "votes": 4340,
         "color": "#34d399"
       },
       {
         "name": "PARTIDO MORADO",
         "candidates": 4,
-        "validPercent": 0.649,
-        "emitPercent": 0.501,
-        "votes": 3385,
+        "validPercent": 0.655,
+        "emitPercent": 0.506,
+        "votes": 3940,
         "color": "#8b5cf6"
       },
       {
         "name": "LIBERTAD POPULAR",
         "candidates": 3,
-        "validPercent": 0.585,
-        "emitPercent": 0.451,
-        "votes": 3049,
+        "validPercent": 0.59,
+        "emitPercent": 0.456,
+        "votes": 3548,
         "color": "#0ea5e9"
       },
       {
         "name": "UNIDAD NACIONAL",
         "candidates": 4,
-        "validPercent": 0.577,
-        "emitPercent": 0.445,
-        "votes": 3009,
+        "validPercent": 0.571,
+        "emitPercent": 0.442,
+        "votes": 3435,
         "color": "#1d4ed8"
       },
       {
         "name": "PARTIDO PATRIÓTICO DEL PERÚ",
         "candidates": 4,
-        "validPercent": 0.575,
-        "emitPercent": 0.444,
-        "votes": 2998,
+        "validPercent": 0.57,
+        "emitPercent": 0.441,
+        "votes": 3430,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO PERÚ PRIMERO",
         "candidates": 4,
-        "validPercent": 0.544,
-        "emitPercent": 0.42,
-        "votes": 2835,
+        "validPercent": 0.537,
+        "emitPercent": 0.415,
+        "votes": 3231,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO INTEGRIDAD DEMOCRÁTICA",
         "candidates": 4,
-        "validPercent": 0.496,
-        "emitPercent": 0.383,
-        "votes": 2587,
+        "validPercent": 0.494,
+        "emitPercent": 0.382,
+        "votes": 2969,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO COOPERACIÓN POPULAR",
         "candidates": 4,
-        "validPercent": 0.479,
-        "emitPercent": 0.37,
-        "votes": 2499,
+        "validPercent": 0.48,
+        "emitPercent": 0.371,
+        "votes": 2883,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO DEMÓCRATA UNIDO PERÚ",
         "candidates": 4,
-        "validPercent": 0.448,
-        "emitPercent": 0.346,
-        "votes": 2336,
+        "validPercent": 0.446,
+        "emitPercent": 0.345,
+        "votes": 2683,
         "color": "#8b5cf6"
       },
       {
         "name": "ALIANZA ELECTORAL VENCEREMOS",
         "candidates": 4,
-        "validPercent": 0.424,
-        "emitPercent": 0.327,
-        "votes": 2209,
+        "validPercent": 0.413,
+        "emitPercent": 0.319,
+        "votes": 2485,
         "color": "#06b6d4"
       },
       {
         "name": "PARTIDO POLÍTICO NACIONAL PERÚ LIBRE",
         "candidates": 4,
-        "validPercent": 0.329,
-        "emitPercent": 0.254,
-        "votes": 1715,
+        "validPercent": 0.328,
+        "emitPercent": 0.253,
+        "votes": 1970,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO DEMÓCRATA VERDE",
         "candidates": 3,
-        "validPercent": 0.319,
-        "emitPercent": 0.246,
-        "votes": 1665,
+        "validPercent": 0.316,
+        "emitPercent": 0.244,
+        "votes": 1898,
         "color": "#8b5cf6"
       },
       {
         "name": "FUERZA Y LIBERTAD",
         "candidates": 4,
-        "validPercent": 0.185,
-        "emitPercent": 0.143,
-        "votes": 963,
+        "validPercent": 0.188,
+        "emitPercent": 0.145,
+        "votes": 1129,
         "color": "#f97316"
       },
       {
         "name": "UN CAMINO DIFERENTE",
         "candidates": 4,
-        "validPercent": 0.178,
-        "emitPercent": 0.138,
-        "votes": 930,
+        "validPercent": 0.174,
+        "emitPercent": 0.134,
+        "votes": 1046,
         "color": "#ec4899"
       },
       {
         "name": "FE EN EL PERÚ",
         "candidates": 4,
         "validPercent": 0.138,
-        "emitPercent": 0.107,
-        "votes": 720,
+        "emitPercent": 0.106,
+        "votes": 828,
         "color": "#94a3b8"
-      },
-      {
-        "name": "PARTIDO POLÍTICO PRIN",
-        "candidates": 3,
-        "validPercent": 0.113,
-        "emitPercent": 0.087,
-        "votes": 587,
-        "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO PERÚ ACCIÓN",
         "candidates": 4,
-        "validPercent": 0.109,
-        "emitPercent": 0.084,
-        "votes": 569,
+        "validPercent": 0.11,
+        "emitPercent": 0.085,
+        "votes": 664,
+        "color": "#8b5cf6"
+      },
+      {
+        "name": "PARTIDO POLÍTICO PRIN",
+        "candidates": 3,
+        "validPercent": 0.11,
+        "emitPercent": 0.085,
+        "votes": 662,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO DEMOCRATICO FEDERAL",
         "candidates": 4,
-        "validPercent": 0.097,
-        "emitPercent": 0.075,
-        "votes": 508,
+        "validPercent": 0.096,
+        "emitPercent": 0.074,
+        "votes": 576,
         "color": "#8b5cf6"
       },
       {
@@ -899,15 +899,15 @@
         "candidates": 3,
         "validPercent": 0.086,
         "emitPercent": 0.066,
-        "votes": 448,
+        "votes": 515,
         "color": "#8b5cf6"
       },
       {
         "name": "SALVEMOS AL PERÚ",
         "candidates": 1,
-        "validPercent": 0.07,
+        "validPercent": 0.069,
         "emitPercent": 0.054,
-        "votes": 364,
+        "votes": 417,
         "color": "#fb7185"
       },
       {
@@ -915,7 +915,7 @@
         "candidates": 2,
         "validPercent": 0.063,
         "emitPercent": 0.049,
-        "votes": 328,
+        "votes": 381,
         "color": "hsl(291, 65%, 55%)"
       }
     ]
@@ -927,185 +927,185 @@
       {
         "name": "RENOVACIÓN POPULAR",
         "candidates": 32,
-        "validPercent": 20.47,
-        "emitPercent": 16.605,
-        "votes": 111217,
+        "validPercent": 20.625,
+        "emitPercent": 16.743,
+        "votes": 128641,
         "color": "hsl(255, 65%, 55%)"
       },
       {
         "name": "PARTIDO DEL BUEN GOBIERNO",
         "candidates": 30,
-        "validPercent": 15.392,
-        "emitPercent": 12.486,
-        "votes": 83627,
+        "validPercent": 15.387,
+        "emitPercent": 12.492,
+        "votes": 95974,
         "color": "#8b5cf6"
       },
       {
         "name": "FUERZA POPULAR",
         "candidates": 31,
-        "validPercent": 13.376,
-        "emitPercent": 10.85,
-        "votes": 72670,
+        "validPercent": 13.358,
+        "emitPercent": 10.844,
+        "votes": 83317,
         "color": "#f97316"
       },
       {
         "name": "AHORA NACIÓN - AN",
         "candidates": 30,
-        "validPercent": 9.086,
-        "emitPercent": 7.371,
-        "votes": 49366,
+        "validPercent": 9.09,
+        "emitPercent": 7.379,
+        "votes": 56695,
         "color": "#84cc16"
       },
       {
         "name": "PARTIDO CÍVICO OBRAS",
         "candidates": 30,
-        "validPercent": 7.141,
-        "emitPercent": 5.792,
-        "votes": 38796,
+        "validPercent": 7.128,
+        "emitPercent": 5.786,
+        "votes": 44458,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO PAÍS PARA TODOS",
         "candidates": 24,
-        "validPercent": 5.91,
-        "emitPercent": 4.794,
-        "votes": 32109,
+        "validPercent": 5.907,
+        "emitPercent": 4.796,
+        "votes": 36846,
         "color": "#8b5cf6"
       },
       {
         "name": "PRIMERO LA GENTE – COMUNIDAD, ECOLOGÍA, LIBERTAD Y PROGRESO",
         "candidates": 24,
-        "validPercent": 4.489,
-        "emitPercent": 3.641,
-        "votes": 24388,
+        "validPercent": 4.448,
+        "emitPercent": 3.611,
+        "votes": 27740,
         "color": "#facc15"
       },
       {
         "name": "PARTIDO SICREO",
         "candidates": 22,
-        "validPercent": 2.905,
-        "emitPercent": 2.357,
-        "votes": 15784,
+        "validPercent": 2.886,
+        "emitPercent": 2.343,
+        "votes": 18001,
         "color": "#8b5cf6"
       },
       {
         "name": "JUNTOS POR EL PERÚ",
         "candidates": 27,
-        "validPercent": 2.538,
-        "emitPercent": 2.059,
-        "votes": 13788,
+        "validPercent": 2.534,
+        "emitPercent": 2.057,
+        "votes": 15804,
         "color": "#ec4899"
       },
       {
         "name": "PARTIDO APRISTA PERUANO",
         "candidates": 29,
-        "validPercent": 2.108,
-        "emitPercent": 1.71,
-        "votes": 11455,
+        "validPercent": 2.095,
+        "emitPercent": 1.7,
+        "votes": 13064,
         "color": "#ef4444"
       },
       {
         "name": "PARTIDO DEMOCRÁTICO SOMOS PERÚ",
         "candidates": 30,
-        "validPercent": 1.659,
-        "emitPercent": 1.346,
-        "votes": 9016,
+        "validPercent": 1.68,
+        "emitPercent": 1.364,
+        "votes": 10477,
         "color": "#8b5cf6"
-      },
-      {
-        "name": "FRENTE POPULAR AGRÍCOLA FÍA DEL PERÚ",
-        "candidates": 32,
-        "validPercent": 1.323,
-        "emitPercent": 1.073,
-        "votes": 7188,
-        "color": "#22c55e"
       },
       {
         "name": "AVANZA PAÍS - PARTIDO DE INTEGRACIÓN SOCIAL",
         "candidates": 27,
-        "validPercent": 1.295,
-        "emitPercent": 1.051,
-        "votes": 7038,
+        "validPercent": 1.316,
+        "emitPercent": 1.068,
+        "votes": 8207,
         "color": "#34d399"
+      },
+      {
+        "name": "FRENTE POPULAR AGRÍCOLA FÍA DEL PERÚ",
+        "candidates": 32,
+        "validPercent": 1.309,
+        "emitPercent": 1.063,
+        "votes": 8167,
+        "color": "#22c55e"
       },
       {
         "name": "PODEMOS PERÚ",
         "candidates": 30,
-        "validPercent": 1.22,
-        "emitPercent": 0.989,
-        "votes": 6626,
+        "validPercent": 1.223,
+        "emitPercent": 0.993,
+        "votes": 7629,
         "color": "#f59e0b"
       },
       {
         "name": "LIBERTAD POPULAR",
         "candidates": 24,
-        "validPercent": 1.17,
-        "emitPercent": 0.949,
-        "votes": 6354,
+        "validPercent": 1.159,
+        "emitPercent": 0.941,
+        "votes": 7226,
         "color": "#0ea5e9"
       },
       {
         "name": "PARTIDO FRENTE DE LA ESPERANZA 2021",
         "candidates": 29,
-        "validPercent": 1.169,
-        "emitPercent": 0.948,
-        "votes": 6352,
+        "validPercent": 1.155,
+        "emitPercent": 0.938,
+        "votes": 7205,
         "color": "#8b5cf6"
       },
       {
         "name": "ALIANZA PARA EL PROGRESO",
         "candidates": 31,
-        "validPercent": 1.111,
-        "emitPercent": 0.902,
-        "votes": 6038,
+        "validPercent": 1.116,
+        "emitPercent": 0.906,
+        "votes": 6959,
         "color": "#06b6d4"
       },
       {
         "name": "PROGRESEMOS",
         "candidates": 29,
-        "validPercent": 0.929,
-        "emitPercent": 0.753,
-        "votes": 5045,
+        "validPercent": 0.918,
+        "emitPercent": 0.745,
+        "votes": 5724,
         "color": "#a78bfa"
       },
       {
         "name": "PARTIDO MORADO",
         "candidates": 32,
-        "validPercent": 0.842,
-        "emitPercent": 0.683,
-        "votes": 4572,
+        "validPercent": 0.835,
+        "emitPercent": 0.678,
+        "votes": 5208,
         "color": "#8b5cf6"
       },
       {
         "name": "UNIDAD NACIONAL",
         "candidates": 29,
-        "validPercent": 0.654,
-        "emitPercent": 0.531,
-        "votes": 3555,
+        "validPercent": 0.649,
+        "emitPercent": 0.527,
+        "votes": 4046,
         "color": "#1d4ed8"
       },
       {
         "name": "PARTIDO POLÍTICO PERÚ PRIMERO",
         "candidates": 28,
-        "validPercent": 0.617,
-        "emitPercent": 0.5,
-        "votes": 3352,
+        "validPercent": 0.611,
+        "emitPercent": 0.496,
+        "votes": 3810,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO PATRIÓTICO DEL PERÚ",
         "candidates": 32,
-        "validPercent": 0.581,
-        "emitPercent": 0.471,
-        "votes": 3156,
+        "validPercent": 0.572,
+        "emitPercent": 0.464,
+        "votes": 3568,
         "color": "#8b5cf6"
       },
       {
         "name": "ALIANZA ELECTORAL VENCEREMOS",
         "candidates": 32,
-        "validPercent": 0.513,
-        "emitPercent": 0.416,
-        "votes": 2789,
+        "validPercent": 0.506,
+        "emitPercent": 0.411,
+        "votes": 3155,
         "color": "#06b6d4"
       },
       {
@@ -1113,111 +1113,111 @@
         "candidates": 25,
         "validPercent": 0.495,
         "emitPercent": 0.402,
-        "votes": 2692,
+        "votes": 3087,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO INTEGRIDAD DEMOCRÁTICA",
         "candidates": 28,
         "validPercent": 0.475,
-        "emitPercent": 0.386,
-        "votes": 2583,
+        "emitPercent": 0.385,
+        "votes": 2960,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO COOPERACIÓN POPULAR",
         "candidates": 31,
-        "validPercent": 0.469,
+        "validPercent": 0.468,
         "emitPercent": 0.38,
-        "votes": 2547,
+        "votes": 2917,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO NACIONAL PERÚ LIBRE",
         "candidates": 31,
-        "validPercent": 0.377,
-        "emitPercent": 0.306,
-        "votes": 2048,
+        "validPercent": 0.376,
+        "emitPercent": 0.305,
+        "votes": 2344,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO DEMÓCRATA VERDE",
         "candidates": 31,
-        "validPercent": 0.355,
-        "emitPercent": 0.288,
-        "votes": 1927,
+        "validPercent": 0.353,
+        "emitPercent": 0.287,
+        "votes": 2204,
         "color": "#8b5cf6"
       },
       {
         "name": "FUERZA Y LIBERTAD",
         "candidates": 31,
-        "validPercent": 0.207,
-        "emitPercent": 0.168,
-        "votes": 1122,
+        "validPercent": 0.209,
+        "emitPercent": 0.17,
+        "votes": 1305,
         "color": "#f97316"
       },
       {
         "name": "FE EN EL PERÚ",
         "candidates": 23,
-        "validPercent": 0.192,
-        "emitPercent": 0.156,
-        "votes": 1045,
+        "validPercent": 0.191,
+        "emitPercent": 0.155,
+        "votes": 1191,
         "color": "#94a3b8"
       },
       {
         "name": "UN CAMINO DIFERENTE",
         "candidates": 30,
-        "validPercent": 0.17,
-        "emitPercent": 0.138,
-        "votes": 923,
+        "validPercent": 0.169,
+        "emitPercent": 0.137,
+        "votes": 1051,
         "color": "#ec4899"
       },
       {
         "name": "PARTIDO POLÍTICO PRIN",
         "candidates": 27,
-        "validPercent": 0.157,
-        "emitPercent": 0.128,
-        "votes": 854,
+        "validPercent": 0.154,
+        "emitPercent": 0.125,
+        "votes": 961,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO PERÚ ACCIÓN",
         "candidates": 26,
-        "validPercent": 0.14,
-        "emitPercent": 0.114,
-        "votes": 763,
+        "validPercent": 0.139,
+        "emitPercent": 0.113,
+        "votes": 866,
         "color": "#8b5cf6"
       },
       {
         "name": "PERÚ MODERNO",
         "candidates": 25,
-        "validPercent": 0.126,
-        "emitPercent": 0.102,
-        "votes": 683,
+        "validPercent": 0.128,
+        "emitPercent": 0.104,
+        "votes": 800,
         "color": "hsl(291, 65%, 55%)"
-      },
-      {
-        "name": "PARTIDO DEMOCRATICO FEDERAL",
-        "candidates": 22,
-        "validPercent": 0.119,
-        "emitPercent": 0.096,
-        "votes": 646,
-        "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO DE LOS TRABAJADORES Y EMPRENDEDORES PTE - PERÚ",
         "candidates": 22,
         "validPercent": 0.118,
         "emitPercent": 0.096,
-        "votes": 643,
+        "votes": 737,
+        "color": "#8b5cf6"
+      },
+      {
+        "name": "PARTIDO DEMOCRATICO FEDERAL",
+        "candidates": 22,
+        "validPercent": 0.117,
+        "emitPercent": 0.095,
+        "votes": 732,
         "color": "#8b5cf6"
       },
       {
         "name": "SALVEMOS AL PERÚ",
         "candidates": 24,
-        "validPercent": 0.101,
-        "emitPercent": 0.082,
-        "votes": 547,
+        "validPercent": 0.103,
+        "emitPercent": 0.084,
+        "votes": 643,
         "color": "#fb7185"
       }
     ]
@@ -1228,25 +1228,25 @@
       {
         "name": "RENOVACIÓN POPULAR",
         "candidates": 14,
-        "validPercent": 21.502,
-        "emitPercent": 15.989,
-        "votes": 127540,
+        "validPercent": 21.568,
+        "emitPercent": 16.038,
+        "votes": 133953,
         "color": "hsl(255, 65%, 55%)"
       },
       {
         "name": "PARTIDO DEL BUEN GOBIERNO",
         "candidates": 16,
-        "validPercent": 17.73,
-        "emitPercent": 13.184,
-        "votes": 105165,
+        "validPercent": 17.714,
+        "emitPercent": 13.172,
+        "votes": 110018,
         "color": "#8b5cf6"
       },
       {
         "name": "FUERZA POPULAR",
         "candidates": 14,
-        "validPercent": 14.778,
-        "emitPercent": 10.989,
-        "votes": 87656,
+        "validPercent": 14.79,
+        "emitPercent": 10.997,
+        "votes": 91856,
         "color": "#f97316"
       },
       {
@@ -1254,175 +1254,175 @@
         "candidates": 16,
         "validPercent": 8.238,
         "emitPercent": 6.126,
-        "votes": 48866,
+        "votes": 51167,
         "color": "#84cc16"
       },
       {
         "name": "PARTIDO CÍVICO OBRAS",
         "candidates": 10,
-        "validPercent": 7.852,
-        "emitPercent": 5.838,
-        "votes": 46572,
+        "validPercent": 7.842,
+        "emitPercent": 5.831,
+        "votes": 48702,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO PAÍS PARA TODOS",
         "candidates": 9,
-        "validPercent": 6.818,
-        "emitPercent": 5.07,
-        "votes": 40441,
+        "validPercent": 6.812,
+        "emitPercent": 5.066,
+        "votes": 42311,
         "color": "#8b5cf6"
       },
       {
         "name": "PRIMERO LA GENTE – COMUNIDAD, ECOLOGÍA, LIBERTAD Y PROGRESO",
         "candidates": 13,
-        "validPercent": 5.153,
-        "emitPercent": 3.831,
-        "votes": 30563,
+        "validPercent": 5.14,
+        "emitPercent": 3.822,
+        "votes": 31923,
         "color": "#facc15"
       },
       {
         "name": "JUNTOS POR EL PERÚ",
         "candidates": 13,
-        "validPercent": 2.767,
-        "emitPercent": 2.057,
-        "votes": 16410,
+        "validPercent": 2.753,
+        "emitPercent": 2.047,
+        "votes": 17099,
         "color": "#ec4899"
       },
       {
         "name": "PARTIDO APRISTA PERUANO",
         "candidates": 16,
-        "validPercent": 2.034,
-        "emitPercent": 1.513,
-        "votes": 12066,
+        "validPercent": 2.032,
+        "emitPercent": 1.511,
+        "votes": 12620,
         "color": "#ef4444"
       },
       {
         "name": "FRENTE POPULAR AGRÍCOLA FÍA DEL PERÚ",
         "candidates": 16,
-        "validPercent": 1.565,
-        "emitPercent": 1.164,
-        "votes": 9283,
+        "validPercent": 1.567,
+        "emitPercent": 1.166,
+        "votes": 9735,
         "color": "#22c55e"
       },
       {
         "name": "PODEMOS PERÚ",
         "candidates": 13,
-        "validPercent": 1.015,
+        "validPercent": 1.014,
         "emitPercent": 0.754,
-        "votes": 6018,
+        "votes": 6297,
         "color": "#f59e0b"
       },
       {
         "name": "PARTIDO DEMOCRÁTICO SOMOS PERÚ",
         "candidates": 16,
-        "validPercent": 1.007,
-        "emitPercent": 0.749,
-        "votes": 5974,
+        "validPercent": 1.005,
+        "emitPercent": 0.747,
+        "votes": 6242,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO MORADO",
         "candidates": 14,
-        "validPercent": 0.947,
-        "emitPercent": 0.704,
-        "votes": 5618,
+        "validPercent": 0.948,
+        "emitPercent": 0.705,
+        "votes": 5890,
         "color": "#8b5cf6"
       },
       {
         "name": "PROGRESEMOS",
         "candidates": 16,
-        "validPercent": 0.872,
-        "emitPercent": 0.648,
-        "votes": 5172,
+        "validPercent": 0.869,
+        "emitPercent": 0.646,
+        "votes": 5398,
         "color": "#a78bfa"
       },
       {
         "name": "ALIANZA PARA EL PROGRESO",
         "candidates": 13,
-        "validPercent": 0.816,
-        "emitPercent": 0.607,
-        "votes": 4841,
+        "validPercent": 0.815,
+        "emitPercent": 0.606,
+        "votes": 5059,
         "color": "#06b6d4"
       },
       {
         "name": "AVANZA PAÍS - PARTIDO DE INTEGRACIÓN SOCIAL",
         "candidates": 5,
         "validPercent": 0.67,
-        "emitPercent": 0.498,
-        "votes": 3972,
+        "emitPercent": 0.499,
+        "votes": 4164,
         "color": "#34d399"
       },
       {
         "name": "UNIDAD NACIONAL",
         "candidates": 14,
-        "validPercent": 0.664,
-        "emitPercent": 0.494,
-        "votes": 3941,
+        "validPercent": 0.666,
+        "emitPercent": 0.496,
+        "votes": 4139,
         "color": "#1d4ed8"
       },
       {
         "name": "PARTIDO PATRIÓTICO DEL PERÚ",
         "candidates": 15,
-        "validPercent": 0.658,
-        "emitPercent": 0.49,
-        "votes": 3905,
+        "validPercent": 0.652,
+        "emitPercent": 0.485,
+        "votes": 4052,
         "color": "#8b5cf6"
       },
       {
         "name": "LIBERTAD POPULAR",
         "candidates": 7,
-        "validPercent": 0.656,
-        "emitPercent": 0.488,
-        "votes": 3889,
+        "validPercent": 0.652,
+        "emitPercent": 0.485,
+        "votes": 4052,
         "color": "#0ea5e9"
       },
       {
         "name": "PARTIDO POLÍTICO PERÚ PRIMERO",
         "candidates": 13,
-        "validPercent": 0.578,
-        "emitPercent": 0.43,
-        "votes": 3428,
+        "validPercent": 0.575,
+        "emitPercent": 0.428,
+        "votes": 3574,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO INTEGRIDAD DEMOCRÁTICA",
         "candidates": 15,
-        "validPercent": 0.523,
-        "emitPercent": 0.389,
-        "votes": 3100,
+        "validPercent": 0.521,
+        "emitPercent": 0.388,
+        "votes": 3238,
         "color": "#8b5cf6"
       },
       {
         "name": "ALIANZA ELECTORAL VENCEREMOS",
         "candidates": 13,
-        "validPercent": 0.502,
-        "emitPercent": 0.373,
-        "votes": 2977,
+        "validPercent": 0.499,
+        "emitPercent": 0.371,
+        "votes": 3102,
         "color": "#06b6d4"
       },
       {
         "name": "PARTIDO DEMÓCRATA UNIDO PERÚ",
         "candidates": 10,
-        "validPercent": 0.478,
-        "emitPercent": 0.355,
-        "votes": 2835,
+        "validPercent": 0.48,
+        "emitPercent": 0.357,
+        "votes": 2984,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO COOPERACIÓN POPULAR",
         "candidates": 14,
-        "validPercent": 0.469,
-        "emitPercent": 0.349,
-        "votes": 2784,
+        "validPercent": 0.471,
+        "emitPercent": 0.351,
+        "votes": 2928,
         "color": "#8b5cf6"
       },
       {
         "name": "PARTIDO POLÍTICO NACIONAL PERÚ LIBRE",
         "candidates": 15,
         "validPercent": 0.419,
-        "emitPercent": 0.312,
-        "votes": 2487,
+        "emitPercent": 0.311,
+        "votes": 2601,
         "color": "#8b5cf6"
       },
       {
@@ -1430,23 +1430,23 @@
         "candidates": 16,
         "validPercent": 0.34,
         "emitPercent": 0.253,
-        "votes": 2017,
+        "votes": 2111,
         "color": "#8b5cf6"
       },
       {
         "name": "UN CAMINO DIFERENTE",
         "candidates": 15,
-        "validPercent": 0.214,
-        "emitPercent": 0.159,
-        "votes": 1267,
+        "validPercent": 0.212,
+        "emitPercent": 0.158,
+        "votes": 1317,
         "color": "#ec4899"
       },
       {
         "name": "FUERZA Y LIBERTAD",
         "candidates": 16,
-        "validPercent": 0.191,
-        "emitPercent": 0.142,
-        "votes": 1133,
+        "validPercent": 0.19,
+        "emitPercent": 0.141,
+        "votes": 1179,
         "color": "#f97316"
       },
       {
@@ -1454,106 +1454,106 @@
         "candidates": 12,
         "validPercent": 0.137,
         "emitPercent": 0.102,
-        "votes": 814,
+        "votes": 853,
         "color": "#94a3b8"
       },
       {
         "name": "PARTIDO POLÍTICO PRIN",
         "candidates": 14,
-        "validPercent": 0.129,
-        "emitPercent": 0.096,
-        "votes": 763,
+        "validPercent": 0.128,
+        "emitPercent": 0.095,
+        "votes": 797,
+        "color": "#8b5cf6"
+      },
+      {
+        "name": "PARTIDO DE LOS TRABAJADORES Y EMPRENDEDORES PTE - PERÚ",
+        "candidates": 4,
+        "validPercent": 0.096,
+        "emitPercent": 0.072,
+        "votes": 599,
         "color": "#8b5cf6"
       },
       {
         "name": "SALVEMOS AL PERÚ",
         "candidates": 5,
-        "validPercent": 0.098,
-        "emitPercent": 0.073,
-        "votes": 579,
+        "validPercent": 0.096,
+        "emitPercent": 0.071,
+        "votes": 596,
         "color": "#fb7185"
-      },
-      {
-        "name": "PARTIDO DE LOS TRABAJADORES Y EMPRENDEDORES PTE - PERÚ",
-        "candidates": 4,
-        "validPercent": 0.097,
-        "emitPercent": 0.072,
-        "votes": 574,
-        "color": "#8b5cf6"
       },
       {
         "name": "PERÚ MODERNO",
         "candidates": 11,
-        "validPercent": 0.083,
-        "emitPercent": 0.062,
-        "votes": 495,
+        "validPercent": 0.084,
+        "emitPercent": 0.063,
+        "votes": 524,
         "color": "hsl(291, 65%, 55%)"
       }
     ],
     "totals": {
-      "validVotes": 593145,
+      "validVotes": 680268,
       "blankVotes": 0,
       "nullVotes": 0,
-      "totalVotes": 797681
+      "totalVotes": 913913
     }
   },
   "participacion": {
     "electoresHabiles": 27325432,
-    "totalAsistentes": 10332895,
-    "totalAusentes": 2865792,
-    "asistentesPercent": 37.814,
-    "ausentesPercent": 10.488,
-    "pendientesPercent": 51.698,
+    "totalAsistentes": 10356687,
+    "totalAusentes": 2872503,
+    "asistentesPercent": 37.901,
+    "ausentesPercent": 10.512,
+    "pendientesPercent": 51.587,
     "exteriorAsistentes": 3.492,
-    "peruAsistentes": 39.406,
-    "actasPct": 48.297,
+    "peruAsistentes": 39.497,
+    "actasPct": 48.744,
     "totalActas": 92766
   },
   "actas": {
     "presidencial": {
       "total": 92766,
-      "percent": 48.28,
-      "processed": 44787,
-      "jeePercent": 0.072,
-      "jeeCount": 67,
-      "pending": 47912,
-      "pendingPercent": 51.648
+      "percent": 48.772,
+      "processed": 45244,
+      "jeePercent": 0.074,
+      "jeeCount": 69,
+      "pending": 47453,
+      "pendingPercent": 51.154
     },
     "senadoresUnico": {
       "total": 92766,
-      "percent": 3.857,
-      "processed": 3578,
+      "percent": 4.467,
+      "processed": 4144,
       "jeePercent": 0.002,
       "jeeCount": 2,
-      "pending": 89186,
-      "pendingPercent": 96.141
+      "pending": 88620,
+      "pendingPercent": 95.531
     },
     "senadoresMultiple": {
       "total": 92766,
-      "percent": 3.872,
-      "processed": 3592,
+      "percent": 4.467,
+      "processed": 4144,
       "jeePercent": 0.001,
       "jeeCount": 1,
-      "pending": 89173,
-      "pendingPercent": 96.127
+      "pending": 88621,
+      "pendingPercent": 95.532
     },
     "diputados": {
       "total": 92766,
-      "percent": 3.705,
-      "processed": 3437,
+      "percent": 4.274,
+      "processed": 3965,
       "jeePercent": 0,
       "jeeCount": 0,
-      "pending": 89329,
-      "pendingPercent": 96.295
+      "pending": 88801,
+      "pendingPercent": 95.726
     },
     "parlamentoAndino": {
       "total": 92766,
-      "percent": 3.695,
-      "processed": 3428,
+      "percent": 4.289,
+      "processed": 3979,
       "jeePercent": 0,
       "jeeCount": 0,
-      "pending": 89338,
-      "pendingPercent": 96.305
+      "pending": 88787,
+      "pendingPercent": 95.711
     }
   }
 }

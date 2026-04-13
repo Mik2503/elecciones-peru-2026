@@ -430,7 +430,7 @@ function CorrupcionSection() {
   useEffect(() => {
     fetch("/api/corruption-data")
       .then(r => r.json())
-      .then(d => { setCorruptionData(d.data); setLoading(false); })
+      .then(d => { setCorruptionData(d); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
